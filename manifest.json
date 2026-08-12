@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Tabsolutely",
+  "version": "1.0.0",
+  "description": "Your tabs deserve love too.",
+  "action": {
+    "default_title": "Tabsolutely",
+    "default_popup": "popup.html"
+  }
+}

@@ -1,0 +1,49 @@
+<!--
+  popup.html defines the content Chromium displays when the extension icon is clicked.
+  Keep this file focused on structure; popup.css handles appearance and app.js handles behavior.
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabsolutely</title>
+    <link rel="stylesheet" href="css/popup.css">
+  </head>
+
+  <body>
+    <main class="app">
+      <header class="header">
+            <div class="logo">💘</div>
+
+            <div>
+                <h1>Tabsolutely</h1>
+                <p>Your tabs deserve love too.</p>
+            </div>
+        </header>
+
+        <section class="card" aria-live="polite">
+
+            <div class="heart">💗</div>
+
+            <h2 id="status-title">
+                Welcome to Tabsolutely
+            </h2>
+
+            <p id="status-message">
+                Loading the extension...
+            </p>
+
+        </section>
+
+        <footer>
+            <span>Made for your tabs</span>
+            <span>💘</span>
+        </footer>
+
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+
+</body>
+</html>
