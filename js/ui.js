@@ -96,6 +96,11 @@ export function createUI(handlers) {
     elements.retryButton.focus({ preventScroll: true });
   }
 
+  function restoreView(name) {
+    const allowed = new Set(["loading", "deck", "match", "empty", "error"]);
+    showView(allowed.has(name) ? name : "deck");
+  }
+
   return {
     showLoading,
     showProfile,
@@ -104,6 +109,7 @@ export function createUI(handlers) {
     showStats,
     showEmpty,
     showError,
+    restoreView,
     currentView: () => activeView,
     isAnimating: () => animating,
   };

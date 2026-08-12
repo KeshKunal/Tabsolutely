@@ -73,15 +73,18 @@ async function choose(decision) {
 
   await ui.animateDecision(decision);
 
+  const candidates = decision === "like"
+    ? state.profiles.filter((candidate, index) => index !== state.currentIndex && candidate.id !== profile.id)
+    : [];
+  const match = decision === "like" ? findBestMatch(profile, candidates) : null;
+
   try {
-    state.history = await recordDecision(state.history, decision, profile);
+    state.history = await recordDecision(state.history, decision, profile, Boolean(match));
   } catch (error) {
     console.warn("The choice could not be saved, but swiping can continue.", error);
   }
 
   if (decision === "like") {
-    const candidates = state.profiles.filter((candidate, index) => index !== state.currentIndex && candidate.id !== profile.id);
-    const match = findBestMatch(profile, candidates);
     state.currentIndex += 1;
 
     if (match) {
@@ -110,11 +113,7 @@ function openStats() {
 }
 
 function closeStats() {
-  if (state.previousView === "match") {
-    renderCurrentProfile();
-  } else {
-    renderCurrentProfile();
-  }
+  ui.restoreView(state.previousView);
 }
 
 async function clearSavedHistory() {

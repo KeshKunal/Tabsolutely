@@ -2,117 +2,125 @@
 
 **Your tabs deserve love too.**
 
-Tabsolutely is a playful Chromium extension that will turn open browser tabs into fictional dating profiles. This first stage is intentionally small: it proves that a Manifest V3 extension can load, open a styled popup, and run JavaScript modules correctly.
+Tabsolutely is a humorous, privacy-friendly Chromium extension that turns currently open tabs into fictional dating profiles. Pass on a tab, like it, discover its best match in your current window, and inspect your wonderfully questionable dating statistics.
 
-## Privacy promise
+## What the MVP includes
 
-Tabsolutely is designed to work entirely inside your browser. It has no backend, analytics, accounts, or external requests. Stage 1 asks for no browser permissions and stores nothing. Later stages will request only the permissions needed to read open tabs and save Tabsolutely decisions locally; tab data will never be transmitted to a server.
+- Live profiles generated from open tabs using local rules
+- Website categories, bios, personality traits, green flags, and red flags
+- Like/pass buttons, arrow-key controls, and swipe animations
+- Deterministic compatibility scores with humorous explanations
+- A match screen and relationship classifications
+- Local likes, passes, matches, favorite-domain statistics, and clear-data control
+- Safe fallbacks for missing favicons, titles, URLs, restricted pages, API errors, and small tab sets
+- Reduced-motion support, visible focus states, semantic controls, and live status announcements
+
+## Privacy
+
+Tabsolutely has no server, analytics, accounts, database, advertising SDK, or AI API. Tab details are processed only while the popup is open and are never transmitted.
+
+The extension stores only aggregate Tabsolutely decisions:
+
+- number of profiles viewed, liked, passed, and matched;
+- counts of liked and passed domains.
+
+It does **not** store full URLs, page titles, complete browsing history, page contents, or favicons. Use **Statistics → Clear my dating history** to remove all saved Tabsolutely data.
 
 ## Project structure
 
 ```text
 Tabsolutely/
-|-- manifest.json       # Tells Chromium how to install and open the extension.
-|-- popup.html          # Provides the popup's accessible HTML structure.
-|-- README.md           # Explains the project, files, and learning workflow.
+|-- manifest.json       # Manifest V3 metadata and minimum permissions
+|-- popup.html          # Accessible structure for each popup screen
 |-- css/
-|   `-- popup.css       # Controls the popup's visual design and states.
+|   `-- popup.css       # Layout, visual system, states, and animations
 `-- js/
-    |-- app.js          # Starts the popup and coordinates its modules.
-    `-- ui.js           # Updates elements that the user can see.
+    |-- app.js          # Application state and event coordination
+    |-- tabs.js         # The single boundary around chrome.tabs
+    |-- profiles.js     # Local tab classification and profile rules
+    |-- matching.js     # Deterministic compatibility calculation
+    |-- storage.js      # Privacy-limited chrome.storage.local access
+    `-- ui.js           # DOM rendering and interaction feedback
 ```
 
-Every source file starts with a short description of its responsibility. JSON does not support comments, so `manifest.json` explains the extension through its required `description` field and is documented here.
+Every HTML, CSS, and JavaScript file starts with a comment describing its job. JSON cannot contain comments, so the manifest is explained here.
 
-## How Stage 1 works
+## Necessary libraries
 
-1. Chromium reads `manifest.json` when you load the folder. `manifest_version: 3` selects the current extension platform, while `action.default_popup` tells the browser to open `popup.html` when the toolbar icon is clicked.
-2. `popup.html` creates the semantic page structure and loads `css/popup.css`.
-3. The script tag uses `type="module"`, which enables JavaScript `import` and `export` syntax.
-4. `js/app.js` imports `showReadyState` from `js/ui.js` and calls it after the HTML is ready.
-5. `showReadyState` finds the loading message, updates its text, and adds a CSS class that turns it green.
+None. Tabsolutely uses HTML, CSS, vanilla JavaScript modules, and two built-in browser APIs:
 
-The loading text remains useful if JavaScript fails: instead of a blank popup, you can see which part did not finish.
+- `chrome.tabs` reads tabs in the current window. The `tabs` permission is needed for titles, URLs, and favicons.
+- `chrome.storage.local` saves aggregate decisions on the device. The `storage` permission enables it.
 
-## Libraries
+There is no package manager, bundler, build step, backend, database, or API key.
 
-There are no libraries to install in Stage 1. The project uses only:
+## Install in Chrome
 
-- HTML for structure;
-- CSS for appearance and responsive popup sizing;
-- vanilla JavaScript modules for behavior;
-- Chromium extension APIs in later stages.
-
-That means there is no `npm install`, build command, framework, server, database, or API key. Edit the files and reload the extension.
-
-## Load it in Google Chrome
-
-1. Open `chrome://extensions` in Chrome.
-2. Turn on **Developer mode** in the top-right corner.
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
 3. Select **Load unpacked**.
-4. Choose this `Tabsolutely` project folder—the folder containing `manifest.json`.
-5. Pin Tabsolutely from the browser's Extensions menu if you want easy access.
-6. Click its toolbar icon. The popup should say **Extension loaded — ready to match!**
+4. Choose this folder—the one containing `manifest.json`.
+5. Pin Tabsolutely from the Extensions menu and click its toolbar icon.
 
-## Load it in Microsoft Edge
+## Install in Microsoft Edge
 
-1. Open `edge://extensions` in Edge.
-2. Turn on **Developer mode** in the sidebar.
+1. Open `edge://extensions`.
+2. Enable **Developer mode**.
 3. Select **Load unpacked**.
-4. Choose this `Tabsolutely` project folder.
-5. Click the Tabsolutely toolbar icon and confirm that the ready message appears.
+4. Choose this project folder.
+5. Open Tabsolutely from its toolbar icon.
 
-## Test changes while learning
+After editing a file, use the reload button on the extension card, then close and reopen the popup.
 
-After editing a file, return to the extensions page and click the reload button on the Tabsolutely card. Close and reopen the popup because extension popups are recreated each time they open.
+## How the code flows
 
-Check these Stage 1 outcomes:
+1. Chromium reads `manifest.json` and opens `popup.html` when the toolbar action is clicked.
+2. `app.js` loads saved choices and asks `tabs.js` for current-window tabs.
+3. `profiles.js` converts each raw tab into a plain profile object. Unknown and protected browser pages receive fallbacks instead of crashing.
+4. `ui.js` renders the current card and returns user actions to `app.js`.
+5. A pass advances the deck. A like asks `matching.js` to score every other profile and display the highest-scoring partner.
+6. `storage.js` saves only the aggregate choice and domain count.
 
-- the extension card reports no manifest errors;
-- clicking the toolbar icon opens a compact pink popup;
-- the text is readable and the layout is not clipped;
-- the gray loading message changes to a green ready message;
-- keyboard focus will have a visible purple outline when interactive controls arrive.
+This separation keeps each concept small: browser access, data transformation, calculation, persistence, presentation, and coordination.
 
-To inspect an error, right-click inside the popup and choose **Inspect**. The Console tab shows JavaScript and loading errors. On the extensions page, Chromium may also display an **Errors** button on the extension card.
+## Compatibility scoring
 
-## Common errors
+The algorithm starts from a base score and adds understandable bonuses for:
 
-### Manifest file is missing or unreadable
+- compatible or matching categories;
+- both tabs being pinned;
+- active-tab attention;
+- same-domain chemistry;
+- productive/distraction balance;
+- a small deterministic domain-pair bonus.
 
-Make sure you selected the folder containing `manifest.json`, not its parent or one of its subfolders. JSON requires double quotes and does not permit comments or trailing commas.
+Scores map to Soulmates, Great match, Could work, It’s complicated, or Absolutely not. No random number or external service is used, so the same pair stays consistent.
 
-### The popup is unstyled
+## Test checklist
 
-Confirm that `css/popup.css` exists and that this path in `popup.html` has not changed. Reload the extension after fixing it.
+- Open two or more regular pages and confirm each becomes a profile.
+- Test both buttons and the Left/Right Arrow keys.
+- Like a profile and confirm a match, score, reasons, and Continue button appear.
+- Finish the deck and restart it.
+- Open Statistics, verify totals, clear them, and confirm all values return to zero.
+- Try a restricted page such as `chrome://extensions` or `edge://settings`; it should become a Mysterious Stranger.
+- Test a tab without a favicon and confirm the heart fallback appears.
+- Mute, pin, or duplicate a tab and look for corresponding profile flags.
+- Temporarily remove the `tabs` permission, reload, and confirm the error screen offers Retry; restore the permission afterward.
+- Enable reduced motion in the operating system and confirm the popup remains usable.
 
-### The message stays on "Loading the extension..."
+## Troubleshooting
 
-Open the popup inspector and check the Console. Confirm that both JavaScript files are inside `js/`, and keep `type="module"` on the script element so imports work.
+**Manifest is unreadable:** Select the folder containing `manifest.json`. JSON does not allow comments or trailing commas.
 
-### Changes do not appear
+**Changes do not appear:** Reload the extension on its extensions page, then close and reopen the popup.
 
-Reload the extension from `chrome://extensions` or `edge://extensions`, then close and reopen the popup. Refreshing a normal browser tab does not reload extension files.
+**Popup says the Tabs API is unavailable:** Open it from the installed toolbar action, not by opening `popup.html` as a normal file.
 
-### Emoji or punctuation looks corrupted
+**A module fails to load:** Check the popup’s developer console and confirm the `js/` filenames and import paths match exactly.
 
-Save source files as UTF-8. The HTML already declares UTF-8 with `<meta charset="UTF-8">`.
+**Text looks corrupted:** Save files as UTF-8. `popup.html` explicitly declares UTF-8.
 
-## Learning roadmap
+## Ideas beyond the MVP
 
-Each stage should remain small, be tested in the browser, and work before the next begins.
-
-1. **Starter popup:** load the manifest, styled HTML, and JavaScript modules.
-2. **Count open tabs:** add the minimum Tabs API permission and call `chrome.tabs.query()`.
-3. **Build one profile:** safely turn one tab's title, URL, and favicon into a dating card.
-4. **Pass:** move to the next local profile with a short left-swipe animation.
-5. **Like:** record a like in memory and move right.
-6. **Compatibility:** calculate a deterministic humorous score from tab categories and state.
-7. **Match screen:** display the score, explanation, and relationship label.
-8. **Local history:** introduce `chrome.storage.local`, statistics, and a clear-data control.
-9. **Personality rules:** add local bios, categories, green flags, and red flags.
-10. **Polish:** improve animations, empty states, accessibility, visual branding, and icons.
-11. **Test:** cover missing titles, invalid URLs, restricted pages, duplicates, and API failures.
-12. **Demo:** document privacy, package the extension, and prepare a short competition walkthrough.
-
-Later modules such as `tabs.js`, `profiles.js`, `matching.js`, and `storage.js` will be added only when their stage begins. This keeps every new file connected to a concept you are actively learning.
+Possible later experiments include tab jealousy, returning “ex” tabs, breakups that close a tab, relationship advice, custom icons, and a competition demo mode. These should remain local and request no new permissions unless the feature genuinely requires one.

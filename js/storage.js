@@ -15,13 +15,13 @@ export async function loadHistory() {
   return normalizeHistory(result[STORAGE_KEY]);
 }
 
-export async function recordDecision(current, decision, profile) {
+export async function recordDecision(current, decision, profile, createdMatch = false) {
   const history = normalizeHistory(current);
   history.viewed += 1;
 
   if (decision === "like") {
     history.likes += 1;
-    history.matches += 1;
+    if (createdMatch) history.matches += 1;
     increment(history.likedDomains, profile.domain);
   } else {
     history.passes += 1;
