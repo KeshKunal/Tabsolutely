@@ -1,19 +1,188 @@
 /**
- * ui.js owns changes to visible popup elements. Exported functions allow app.js
- * to request a UI update without needing to know the update's DOM details.
+ * ui.js owns all DOM reads and visible updates. The rest of the app passes it
+ * plain data, so browser logic and presentation stay separate.
  */
 
-export function showReadyState() {
-  const title = document.getElementById("status-title");
-  const message = document.getElementById("status-message");
-  if (!title || !message) {
-    console.error("Tabsolutely: status elements were not found")
-    return;
+const FALLBACK_FAVICON = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="#ffe0ea"/><text x="32" y="43" text-anchor="middle" font-size="34" fill="#d9366e">♥</text></svg>`);
+
+export function createUI(handlers) {
+  const elements = collectElements();
+  const views = [...document.querySelectorAll(".view")];
+  let activeView = "loading";
+  let animating = false;
+
+  bind(elements.passButton, handlers.onPass);
+  bind(elements.likeButton, handlers.onLike);
+  bind(elements.continueButton, handlers.onContinue);
+  bind(elements.restartButton, handlers.onRestart);
+  bind(elements.retryButton, handlers.onRetry);
+  bind(elements.statsButton, handlers.onOpenStats);
+  bind(elements.closeStatsButton, handlers.onCloseStats);
+  bind(elements.clearButton, handlers.onClear);
+
+  function showView(name) {
+    views.forEach((view) => { view.hidden = view.id !== `${name}-view`; });
+    activeView = name;
+    elements.app.setAttribute("aria-busy", String(name === "loading"));
   }
 
-  title.textContent = "Tabsolutely";
-  message.textContent = "Ready to find your tabs a match! 💖";
+  function showLoading() {
+    showView("loading");
+  }
 
-  title.classList.add("ready");
-  message.classList.add("ready-message");
+  function showProfile(profile, position, total) {
+    setImage(elements.avatar, profile.favicon, `${profile.name} favicon`);
+    elements.category.textContent = profile.category;
+    elements.name.textContent = profile.name;
+    elements.domain.textContent = profile.domain;
+    elements.bio.textContent = `“${profile.bio}”`;
+    renderList(elements.traits, profile.traits, "li");
+    renderList(elements.greenFlags, profile.greenFlags, "li");
+    renderList(elements.redFlags, profile.redFlags, "li");
+    elements.progress.textContent = `${position} of ${total} potential matches`;
+    elements.card.className = "profile-card";
+    showView("deck");
+    elements.passButton.focus({ preventScroll: true });
+  }
+
+  async function animateDecision(decision) {
+    if (animating) return;
+    animating = true;
+    elements.card.classList.add(decision === "like" ? "profile-card--like" : "profile-card--pass");
+    await waitForAnimation(elements.card, 280);
+    animating = false;
+  }
+
+  function showMatch(first, second, result) {
+    setImage(elements.matchFirstAvatar, first.favicon, "");
+    setImage(elements.matchSecondAvatar, second.favicon, "");
+    elements.matchTitle.textContent = `${first.name} + ${second.name}`;
+    elements.matchScore.textContent = `${result.score}%`;
+    elements.matchRelationship.textContent = result.label;
+    renderList(elements.matchReasons, result.reasons.map((reason) => `✓ ${reason}`), "li");
+    showView("match");
+    elements.continueButton.focus({ preventScroll: true });
+  }
+
+  function showStats(history) {
+    const safe = history ?? { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {} };
+    const stats = [
+      [safe.viewed, "Viewed"], [safe.likes, "Likes"], [safe.passes, "Passes"], [safe.matches, "Matches"],
+    ];
+    elements.statGrid.replaceChildren(...stats.map(([value, label]) => statCard(value, label)));
+
+    const favorite = topDomain(safe.likedDomains);
+    const rejected = topDomain(safe.passedDomains);
+    elements.domainStats.replaceChildren(
+      detailRow("Most attractive", favorite || "Still deciding"),
+      detailRow("Most rejected", rejected || "No heartbreak yet"),
+      detailRow("Relationship status", relationshipStatus(safe)),
+    );
+    showView("stats");
+    elements.closeStatsButton.focus({ preventScroll: true });
+  }
+
+  function showEmpty(title, message, showRestart) {
+    elements.emptyTitle.textContent = title;
+    elements.emptyMessage.textContent = message;
+    elements.restartButton.hidden = !showRestart;
+    showView("empty");
+    (showRestart ? elements.restartButton : elements.statsButton).focus({ preventScroll: true });
+  }
+
+  function showError(message) {
+    elements.errorMessage.textContent = message;
+    showView("error");
+    elements.retryButton.focus({ preventScroll: true });
+  }
+
+  return {
+    showLoading,
+    showProfile,
+    animateDecision,
+    showMatch,
+    showStats,
+    showEmpty,
+    showError,
+    currentView: () => activeView,
+    isAnimating: () => animating,
+  };
+}
+
+function collectElements() {
+  return {
+    app: required("app"), card: required("profile-card"), progress: required("deck-progress"),
+    avatar: required("profile-avatar"), category: required("profile-category"), name: required("profile-name"),
+    domain: required("profile-domain"), bio: required("profile-bio"), traits: required("profile-traits"),
+    greenFlags: required("green-flags"), redFlags: required("red-flags"), passButton: required("pass-button"),
+    likeButton: required("like-button"), statsButton: required("stats-button"), closeStatsButton: required("close-stats-button"),
+    matchFirstAvatar: required("match-first-avatar"), matchSecondAvatar: required("match-second-avatar"),
+    matchTitle: required("match-title"), matchScore: required("match-score"), matchRelationship: required("match-relationship"),
+    matchReasons: required("match-reasons"), continueButton: required("continue-button"), statGrid: required("stat-grid"),
+    domainStats: required("domain-stats"), clearButton: required("clear-button"), emptyTitle: required("empty-title"),
+    emptyMessage: required("empty-message"), restartButton: required("restart-button"), errorMessage: required("error-message"),
+    retryButton: required("retry-button"),
+  };
+}
+
+function required(id) {
+  const element = document.getElementById(id);
+  if (!element) throw new Error(`Required UI element #${id} is missing.`);
+  return element;
+}
+
+function bind(element, handler) {
+  element.addEventListener("click", handler);
+}
+
+function setImage(image, source, alt) {
+  image.src = source || FALLBACK_FAVICON;
+  image.alt = alt;
+  image.onerror = () => { image.src = FALLBACK_FAVICON; };
+}
+
+function renderList(container, values, tagName) {
+  container.replaceChildren(...values.map((value) => {
+    const item = document.createElement(tagName);
+    item.textContent = value;
+    return item;
+  }));
+}
+
+function statCard(value, label) {
+  const card = document.createElement("div");
+  const strong = document.createElement("strong");
+  const span = document.createElement("span");
+  strong.textContent = String(value);
+  span.textContent = label;
+  card.append(strong, span);
+  return card;
+}
+
+function detailRow(label, value) {
+  const row = document.createElement("p");
+  const span = document.createElement("span");
+  const strong = document.createElement("strong");
+  span.textContent = label;
+  strong.textContent = value;
+  row.append(span, strong);
+  return row;
+}
+
+function topDomain(record) {
+  return Object.entries(record ?? {}).sort(([, a], [, b]) => b - a)[0]?.[0] ?? "";
+}
+
+function relationshipStatus(history) {
+  if (!history.viewed) return "Newly single";
+  if (history.likes > history.passes) return "Falls fast";
+  if (history.passes > history.likes * 2) return "Very selective";
+  return "It’s complicated";
+}
+
+function waitForAnimation(element, fallbackMs) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, fallbackMs);
+    element.addEventListener("animationend", () => { clearTimeout(timer); resolve(); }, { once: true });
+  });
 }

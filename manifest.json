@@ -2,9 +2,13 @@
   "manifest_version": 3,
   "name": "Tabsolutely",
   "version": "1.0.0",
-  "description": "Your tabs deserve love too.",
+  "description": "Turn your open tabs into funny dating profiles and discover their most ridiculous matches—entirely in your browser.",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
   "action": {
-    "default_title": "Tabsolutely",
+    "default_title": "Open Tabsolutely",
     "default_popup": "popup.html"
   }
 }

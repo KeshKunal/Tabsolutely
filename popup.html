@@ -1,49 +1,101 @@
 <!--
-  popup.html defines the content Chromium displays when the extension icon is clicked.
-  Keep this file focused on structure; popup.css handles appearance and app.js handles behavior.
+  popup.html contains the accessible structure for every Tabsolutely screen.
+  JavaScript fills these templates with live tab data; popup.css owns presentation.
 -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff4f87">
     <title>Tabsolutely</title>
     <link rel="stylesheet" href="css/popup.css">
   </head>
-
   <body>
-    <main class="app">
-      <header class="header">
-            <div class="logo">💘</div>
+    <main class="app" id="app" aria-busy="true">
+      <header class="app-header">
+        <div class="brand-mark" aria-hidden="true">♥</div>
+        <div class="brand-copy">
+          <h1>Tabsolutely</h1>
+          <p>Your tabs deserve love too.</p>
+        </div>
+        <button class="icon-button" id="stats-button" type="button" aria-label="View dating statistics" title="Statistics">⌁</button>
+      </header>
 
-            <div>
-                <h1>Tabsolutely</h1>
-                <p>Your tabs deserve love too.</p>
-            </div>
-        </header>
+      <section class="view view--center" id="loading-view" aria-live="polite">
+        <div class="loader" aria-hidden="true">♥</div>
+        <h2>Meeting your tabs…</h2>
+        <p>Preparing some extremely serious dating profiles.</p>
+      </section>
 
-        <section class="card" aria-live="polite">
+      <section class="view" id="deck-view" hidden>
+        <p class="deck-progress" id="deck-progress"></p>
+        <article class="profile-card" id="profile-card" aria-live="polite">
+          <div class="profile-hero">
+            <img class="profile-avatar" id="profile-avatar" alt="" width="72" height="72">
+            <span class="category-badge" id="profile-category"></span>
+          </div>
+          <h2 id="profile-name"></h2>
+          <p class="domain" id="profile-domain"></p>
+          <p class="bio" id="profile-bio"></p>
+          <ul class="traits" id="profile-traits" aria-label="Personality traits"></ul>
+          <div class="flags-grid">
+            <section>
+              <h3><span aria-hidden="true">●</span> Green flags</h3>
+              <ul id="green-flags"></ul>
+            </section>
+            <section>
+              <h3 class="red-heading"><span aria-hidden="true">▲</span> Red flags</h3>
+              <ul id="red-flags"></ul>
+            </section>
+          </div>
+        </article>
+        <div class="actions" aria-label="Profile actions">
+          <button class="action-button action-button--pass" id="pass-button" type="button"><span aria-hidden="true">×</span> Pass</button>
+          <button class="action-button action-button--like" id="like-button" type="button"><span aria-hidden="true">♥</span> Like</button>
+        </div>
+        <p class="keyboard-hint">Keyboard: ← pass · → like</p>
+      </section>
 
-            <div class="heart">💗</div>
+      <section class="view view--center match-view" id="match-view" hidden aria-live="polite">
+        <p class="match-kicker">It’s a match!</p>
+        <div class="match-pair" aria-hidden="true">
+          <img id="match-first-avatar" alt="" width="64" height="64">
+          <span>♥</span>
+          <img id="match-second-avatar" alt="" width="64" height="64">
+        </div>
+        <h2 id="match-title"></h2>
+        <div class="score-ring"><strong id="match-score"></strong><span>compatible</span></div>
+        <p class="relationship" id="match-relationship"></p>
+        <ul class="reasons" id="match-reasons"></ul>
+        <button class="primary-button" id="continue-button" type="button">Keep swiping</button>
+      </section>
 
-            <h2 id="status-title">
-                Welcome to Tabsolutely
-            </h2>
+      <section class="view stats-view" id="stats-view" hidden>
+        <div class="view-heading">
+          <div><p class="eyebrow">Your dating life</p><h2>Local statistics</h2></div>
+          <button class="icon-button" id="close-stats-button" type="button" aria-label="Close statistics">×</button>
+        </div>
+        <div class="stat-grid" id="stat-grid"></div>
+        <div class="domain-stats" id="domain-stats"></div>
+        <p class="privacy-card">Only Tabsolutely choices are saved. Your full URLs and browsing history are never stored or sent anywhere.</p>
+        <button class="danger-button" id="clear-button" type="button">Clear my dating history</button>
+      </section>
 
-            <p id="status-message">
-                Loading the extension...
-            </p>
+      <section class="view view--center" id="empty-view" hidden aria-live="polite">
+        <div class="empty-icon" aria-hidden="true">♡</div>
+        <h2 id="empty-title">No more profiles</h2>
+        <p id="empty-message">Your tabs have all had their moment in the spotlight.</p>
+        <button class="primary-button" id="restart-button" type="button">Meet them again</button>
+      </section>
 
-        </section>
-
-        <footer>
-            <span>Made for your tabs</span>
-            <span>💘</span>
-        </footer>
-
+      <section class="view view--center" id="error-view" hidden role="alert">
+        <div class="empty-icon" aria-hidden="true">!</div>
+        <h2>Love is temporarily unavailable</h2>
+        <p id="error-message">Tabsolutely could not read your tabs.</p>
+        <button class="primary-button" id="retry-button" type="button">Try again</button>
+      </section>
     </main>
-
     <script type="module" src="js/app.js"></script>
-
-</body>
+  </body>
 </html>
