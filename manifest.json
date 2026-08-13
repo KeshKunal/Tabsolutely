@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Tabsolutely",
-  "version": "1.0.0",
-  "description": "Turn your open tabs into funny dating profiles and discover their most ridiculous matches—entirely in your browser.",
+  "version": "2.0.0",
+  "description": "Your browser's local matchmaker: automatic tab relationships, notifications, and a private browser soap opera.",
   "permissions": [
     "tabs",
     "storage",

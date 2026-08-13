@@ -7,7 +7,7 @@ import { queryCurrentWindowTabs, watchClosedTabs } from "./tabs.js";
 import { createProfiles } from "./profiles.js";
 import { findBestMatch } from "./matching.js";
 import { diagnoseTabHabits } from "./therapist.js";
-import { clearHistory, loadHistory, recordDecision, recordEncounters } from "./storage.js";
+import { clearHistory, loadHistory, markRelationshipEventsRead, recordDecision, recordEncounters } from "./storage.js";
 import { createUI } from "./ui.js";
 
 const state = {
@@ -29,6 +29,8 @@ const ui = createUI({
   onOpenTherapist: openTherapist,
   onCloseTherapist: closeOverlay,
   onClear: clearSavedHistory,
+  onOpenFeed: openFeed,
+  onOpenSingles: openSingles,
 });
 
 async function initialize() {
@@ -44,12 +46,7 @@ async function initialize() {
     state.currentIndex = 0;
     state.history = await recordEncounters(history, state.profiles);
 
-    if (state.profiles.length === 0) {
-      ui.showEmpty("No eligible tabs", "Open a normal webpage, then try Tabsolutely again.", false);
-      return;
-    }
-
-    renderCurrentProfile();
+    await openFeed();
   } catch (error) {
     console.error("Tabsolutely failed to start:", error);
     ui.showError(error instanceof Error ? error.message : "An unexpected browser error occurred.");
@@ -69,6 +66,26 @@ function renderCurrentProfile() {
   }
 
   ui.showProfile(profile, state.currentIndex + 1, state.profiles.length, state.history);
+}
+
+async function openFeed() {
+  if (!state.history) return;
+  ui.showFeed(state.history?.relationshipEvents ?? [], state.profiles);
+  try {
+    state.history = await markRelationshipEventsRead(state.history);
+    await chrome.action.setBadgeText({ text: "" });
+  } catch (error) {
+    console.warn("Tabsolutely could not mark the feed as read:", error);
+  }
+}
+
+function openSingles() {
+  if (!state.history) return;
+  if (state.profiles.length === 0) {
+    ui.showEmpty("No eligible tabs", "Open a normal webpage, then try Tabsolutely again.", false);
+    return;
+  }
+  renderCurrentProfile();
 }
 
 async function choose(decision) {

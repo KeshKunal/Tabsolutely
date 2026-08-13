@@ -22,15 +22,33 @@ export function createUI(handlers) {
   bind(elements.therapistButton, handlers.onOpenTherapist);
   bind(elements.closeTherapistButton, handlers.onCloseTherapist);
   bind(elements.clearButton, handlers.onClear);
+  bind(elements.feedButton, handlers.onOpenFeed);
+  bind(elements.singlesButton, handlers.onOpenSingles);
 
   function showView(name) {
     views.forEach((view) => { view.hidden = view.id !== `${name}-view`; });
     activeView = name;
     elements.app.setAttribute("aria-busy", String(name === "loading"));
+    elements.feedButton.disabled = name === "loading";
+    elements.singlesButton.disabled = name === "loading";
+    const inSingles = ["deck", "match", "dead", "empty"].includes(name);
+    elements.feedButton.classList.toggle("mode-button--active", name === "feed");
+    elements.singlesButton.classList.toggle("mode-button--active", inSingles);
+    elements.feedButton.setAttribute("aria-pressed", String(name === "feed"));
+    elements.singlesButton.setAttribute("aria-pressed", String(inSingles));
   }
 
   function showLoading() {
     showView("loading");
+  }
+
+  function showFeed(events, profiles) {
+    elements.feedSummary.textContent = events.length
+      ? `${events.length} relationship ${events.length === 1 ? "event" : "events"} recorded locally · ${profiles.length} tabs currently in the room`
+      : `${profiles.length} tabs are in the room. The matchmaker is watching quietly.`;
+    elements.eventFeed.replaceChildren(...events.map(eventCard));
+    elements.feedEmpty.hidden = events.length > 0;
+    showView("feed");
   }
 
   function showProfile(profile, position, total, history) {
@@ -145,12 +163,13 @@ export function createUI(handlers) {
   }
 
   function restoreView(name) {
-    const allowed = new Set(["loading", "deck", "match", "dead", "empty", "error", "stats", "therapist"]);
+    const allowed = new Set(["loading", "feed", "deck", "match", "dead", "empty", "error", "stats", "therapist"]);
     showView(allowed.has(name) ? name : "deck");
   }
 
   return {
     showLoading,
+    showFeed,
     showProfile,
     animateDecision,
     showMatch,
@@ -168,6 +187,8 @@ export function createUI(handlers) {
 function collectElements() {
   return {
     app: required("app"), card: required("profile-card"), progress: required("deck-progress"),
+    feedButton: required("feed-button"), singlesButton: required("singles-button"),
+    feedSummary: required("feed-summary"), eventFeed: required("event-feed"), feedEmpty: required("feed-empty"),
     exAlert: required("ex-alert"), exMessage: required("ex-message"),
     avatar: required("profile-avatar"), category: required("profile-category"), name: required("profile-name"),
     domain: required("profile-domain"), bio: required("profile-bio"), jealousyNote: required("jealousy-note"), traits: required("profile-traits"), lookingFor: required("profile-looking-for"),
@@ -224,6 +245,45 @@ function statCard(value, label) {
   span.textContent = label;
   card.append(strong, span);
   return card;
+}
+
+function eventCard(event) {
+  const article = document.createElement("article");
+  article.className = `event-card event-card--${event.kind}`;
+
+  const meta = document.createElement("div");
+  meta.className = "event-meta";
+  const tier = document.createElement("span");
+  tier.textContent = event.kind === "duplicate" ? "Cheating detected" : event.kind === "rivalry" ? "Rivalry detected" : event.tier;
+  const time = document.createElement("time");
+  time.dateTime = new Date(event.timestamp).toISOString();
+  time.textContent = relativeTime(event.timestamp);
+  meta.append(tier, time);
+
+  const couple = document.createElement("h3");
+  couple.textContent = `${event.first.name} + ${event.second.name}`;
+  const score = document.createElement("strong");
+  score.className = "event-score";
+  score.textContent = `${event.score}% · ${event.label}`;
+  const reason = document.createElement("p");
+  reason.className = "event-reason";
+  reason.textContent = `“${event.reason}”`;
+
+  const dialogue = document.createElement("div");
+  dialogue.className = "event-dialogue";
+  dialogue.append(dialogueLine(event.first.name, event.dialogue.first), dialogueLine(event.second.name, event.dialogue.second));
+  article.append(meta, couple, score, reason, dialogue);
+  return article;
+}
+
+function dialogueLine(name, line) {
+  const paragraph = document.createElement("p");
+  const speaker = document.createElement("b");
+  speaker.textContent = name;
+  const quote = document.createElement("span");
+  quote.textContent = `“${line}”`;
+  paragraph.append(speaker, quote);
+  return paragraph;
 }
 
 function renderMeters(container, metrics) {

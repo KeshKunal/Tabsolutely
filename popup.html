@@ -23,10 +23,29 @@
         <button class="icon-button" id="stats-button" type="button" aria-label="View dating statistics" title="Statistics">⌁</button>
       </header>
 
+      <nav class="mode-switch" aria-label="Tabsolutely sections">
+        <button class="mode-button mode-button--active" id="feed-button" type="button" aria-pressed="true">Browser drama</button>
+        <button class="mode-button" id="singles-button" type="button" aria-pressed="false">Meet the singles</button>
+      </nav>
+
       <section class="view view--center" id="loading-view" aria-live="polite">
         <div class="loader" aria-hidden="true">♥</div>
         <h2>Meeting your tabs…</h2>
         <p>Preparing some extremely serious dating profiles.</p>
+      </section>
+
+      <section class="view feed-view" id="feed-view" hidden aria-live="polite">
+        <div class="feed-heading">
+          <div><p class="eyebrow">Your tabs are meeting behind your back</p><h2>Browser soap opera</h2></div>
+          <span class="live-badge"><i aria-hidden="true"></i> Live</span>
+        </div>
+        <p class="feed-summary" id="feed-summary"></p>
+        <div class="event-feed" id="event-feed"></div>
+        <div class="feed-empty" id="feed-empty" hidden>
+          <span aria-hidden="true">♡</span>
+          <h3>The browser is suspiciously peaceful</h3>
+          <p>Open another normal webpage. Tabsolutely will quietly introduce it to the tabs already here.</p>
+        </div>
       </section>
 
       <section class="view" id="deck-view" hidden>
