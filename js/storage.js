@@ -6,7 +6,7 @@
 const STORAGE_KEY = "tabsolutelyHistory";
 
 export function emptyHistory() {
-  return { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {} };
+  return { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {}, lastPassedAt: {} };
 }
 
 export async function loadHistory() {
@@ -26,6 +26,7 @@ export async function recordDecision(current, decision, profile, createdMatch = 
   } else {
     history.passes += 1;
     increment(history.passedDomains, profile.domain);
+    history.lastPassedAt[profile.domain] = Date.now();
   }
 
   await save(history);
@@ -48,6 +49,7 @@ function normalizeHistory(value) {
     matches: numberOrZero(value.matches),
     likedDomains: objectOrEmpty(value.likedDomains),
     passedDomains: objectOrEmpty(value.passedDomains),
+    lastPassedAt: objectOrEmpty(value.lastPassedAt),
   };
 }
 

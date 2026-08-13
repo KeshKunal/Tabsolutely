@@ -30,7 +30,10 @@ export function createUI(handlers) {
     showView("loading");
   }
 
-  function showProfile(profile, position, total) {
+  function showProfile(profile, position, total, history) {
+    const lastPassedAt = Number(history?.lastPassedAt?.[profile.domain]) || 0;
+    const isEx = lastPassedAt > 0;
+
     setImage(elements.avatar, profile.favicon, `${profile.name} favicon`);
     elements.category.textContent = profile.category;
     elements.name.textContent = profile.name;
@@ -40,6 +43,12 @@ export function createUI(handlers) {
     renderList(elements.greenFlags, profile.greenFlags, "li");
     renderList(elements.redFlags, profile.redFlags, "li");
     elements.progress.textContent = `${position} of ${total} potential matches`;
+    elements.exAlert.hidden = !isEx;
+    elements.exMessage.textContent = isEx
+      ? `You rejected ${profile.name} ${relativeTime(lastPassedAt)}. “People change. Tabs refresh.”`
+      : "";
+    elements.passButton.innerHTML = isEx ? '<span aria-hidden="true">×</span> Stay strong' : '<span aria-hidden="true">×</span> Pass';
+    elements.likeButton.innerHTML = isEx ? '<span aria-hidden="true">♥</span> Take them back' : '<span aria-hidden="true">♥</span> Like';
     elements.card.className = "profile-card";
     showView("deck");
     elements.passButton.focus({ preventScroll: true });
@@ -118,6 +127,7 @@ export function createUI(handlers) {
 function collectElements() {
   return {
     app: required("app"), card: required("profile-card"), progress: required("deck-progress"),
+    exAlert: required("ex-alert"), exMessage: required("ex-message"),
     avatar: required("profile-avatar"), category: required("profile-category"), name: required("profile-name"),
     domain: required("profile-domain"), bio: required("profile-bio"), traits: required("profile-traits"),
     greenFlags: required("green-flags"), redFlags: required("red-flags"), passButton: required("pass-button"),
@@ -184,6 +194,18 @@ function relationshipStatus(history) {
   if (history.likes > history.passes) return "Falls fast";
   if (history.passes > history.likes * 2) return "Very selective";
   return "It’s complicated";
+}
+
+function relativeTime(timestamp) {
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  if (elapsedSeconds < 10) return "just now";
+  if (elapsedSeconds < 60) return `${elapsedSeconds} seconds ago`;
+  const minutes = Math.floor(elapsedSeconds / 60);
+  if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} ${days === 1 ? "day" : "days"} ago`;
 }
 
 function waitForAnimation(element, fallbackMs) {

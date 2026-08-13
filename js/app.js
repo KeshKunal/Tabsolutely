@@ -64,7 +64,7 @@ function renderCurrentProfile() {
     return;
   }
 
-  ui.showProfile(profile, state.currentIndex + 1, state.profiles.length);
+  ui.showProfile(profile, state.currentIndex + 1, state.profiles.length, state.history);
 }
 
 async function choose(decision) {
