@@ -43,6 +43,7 @@ export function calculateCompatibility(first, second) {
 
   return {
     score,
+    tier: relationshipTier(score),
     label: relationship.label || relationshipLabel(score),
     reasons: reasons.slice(0, 3),
     dialogue: { first: relationship.firstLine, second: relationship.secondLine },
@@ -62,6 +63,15 @@ export function relationshipLabel(score) {
   if (score >= 60) return "Could work";
   if (score >= 40) return "It’s complicated";
   return "Absolutely not";
+}
+
+export function relationshipTier(score) {
+  if (score >= 95) return "Soulmates";
+  if (score >= 85) return "Power Couple";
+  if (score >= 70) return "Friends";
+  if (score >= 55) return "Flirty";
+  if (score >= 30) return "Toxic";
+  return "Enemies";
 }
 
 function stablePairBonus(first, second) {

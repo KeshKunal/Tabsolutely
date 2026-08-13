@@ -5,10 +5,27 @@
   "description": "Turn your open tabs into funny dating profiles and discover their most ridiculous matches—entirely in your browser.",
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "notifications"
   ],
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  },
   "action": {
     "default_title": "Open Tabsolutely",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   }
 }

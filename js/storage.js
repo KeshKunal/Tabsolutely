@@ -6,7 +6,11 @@
 const STORAGE_KEY = "tabsolutelyHistory";
 
 export function emptyHistory() {
-  return { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {}, lastPassedAt: {}, domainMemory: {} };
+  return {
+    viewed: 0, likes: 0, passes: 0, matches: 0,
+    likedDomains: {}, passedDomains: {}, lastPassedAt: {}, domainMemory: {},
+    relationshipEvents: [], unreadEvents: 0, lastNotificationAt: 0,
+  };
 }
 
 export async function loadHistory() {
@@ -52,6 +56,30 @@ export async function recordEncounters(current, profiles) {
   return history;
 }
 
+/** Append one privacy-filtered automatic relationship event, newest first. */
+export async function recordRelationshipEvent(current, event) {
+  const history = normalizeHistory(current);
+  history.relationshipEvents = [sanitizeEvent(event), ...history.relationshipEvents].slice(0, 50);
+  history.unreadEvents += 1;
+  history.matches += 1;
+  await save(history);
+  return history;
+}
+
+export async function recordNotificationSent(current, timestamp = Date.now()) {
+  const history = normalizeHistory(current);
+  history.lastNotificationAt = timestamp;
+  await save(history);
+  return history;
+}
+
+export async function markRelationshipEventsRead(current) {
+  const history = normalizeHistory(current);
+  history.unreadEvents = 0;
+  await save(history);
+  return history;
+}
+
 export async function clearHistory() {
   const history = emptyHistory();
   if (globalThis.chrome?.storage?.local) await chrome.storage.local.remove(STORAGE_KEY);
@@ -70,6 +98,9 @@ function normalizeHistory(value) {
     passedDomains: objectOrEmpty(value.passedDomains),
     lastPassedAt: objectOrEmpty(value.lastPassedAt),
     domainMemory: normalizeDomainMemory(value.domainMemory),
+    relationshipEvents: normalizeEvents(value.relationshipEvents),
+    unreadEvents: numberOrZero(value.unreadEvents),
+    lastNotificationAt: numberOrZero(value.lastNotificationAt),
   };
 }
 
@@ -96,4 +127,34 @@ function normalizeDomainMemory(value) {
     lastSeenAt: numberOrZero(entry?.lastSeenAt),
     encounters: numberOrZero(entry?.encounters),
   }]));
+}
+
+function normalizeEvents(value) {
+  return Array.isArray(value) ? value.slice(0, 50).map(sanitizeEvent) : [];
+}
+
+function sanitizeEvent(event = {}) {
+  return {
+    id: String(event.id ?? ""),
+    timestamp: numberOrZero(event.timestamp),
+    kind: String(event.kind ?? "match"),
+    first: sanitizePartner(event.first),
+    second: sanitizePartner(event.second),
+    score: Math.min(99, numberOrZero(event.score)),
+    tier: String(event.tier ?? "Unexpected chemistry"),
+    label: String(event.label ?? "Unexpected chemistry"),
+    reason: String(event.reason ?? "The browser refuses to elaborate."),
+    dialogue: {
+      first: String(event.dialogue?.first ?? "Interesting."),
+      second: String(event.dialogue?.second ?? "Very interesting."),
+    },
+  };
+}
+
+function sanitizePartner(partner = {}) {
+  return {
+    name: String(partner.name ?? "Unknown Tab"),
+    domain: String(partner.domain ?? "unknown-site"),
+    category: String(partner.category ?? "Wildcard"),
+  };
 }
