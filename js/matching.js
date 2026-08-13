@@ -33,11 +33,6 @@ export function calculateCompatibility(first, second) {
     score += 7;
     reasons.push("Same-domain chemistry—or an unresolved duplication problem");
   }
-  if (first.previousPasses > 0 || second.previousPasses > 0) {
-    score -= 5;
-    reasons.push("This relationship already has rejection paperwork");
-  }
-
   score += stablePairBonus(first.domain, second.domain);
   score = Math.max(0, Math.min(99, score));
 

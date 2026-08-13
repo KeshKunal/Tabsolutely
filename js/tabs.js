@@ -12,12 +12,3 @@ export async function queryCurrentWindowTabs() {
   const tabs = await chrome.tabs.query({ currentWindow: true });
   return tabs.filter((tab) => !tab.url?.startsWith("chrome-extension://"));
 }
-
-/** Watch real tab closures for as long as the extension popup remains open. */
-export function watchClosedTabs(onClosed) {
-  if (!globalThis.chrome?.tabs?.onRemoved) return () => {};
-
-  const listener = (tabId) => onClosed(tabId);
-  chrome.tabs.onRemoved.addListener(listener);
-  return () => chrome.tabs.onRemoved.removeListener(listener);
-}

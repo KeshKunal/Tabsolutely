@@ -57,9 +57,7 @@ button:not(:disabled) {
   max-width: 100%;
 }
 
-.mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: -3px 0 14px; padding: 4px; background: rgb(255 255 255 / 65%); border: 1px solid #efdce4; border-radius: 14px; }
-.mode-button { min-height: 34px; padding: 0 10px; color: #876b78; font-size: 10px; font-weight: 800; background: transparent; border: 0; border-radius: 10px; }
-.mode-button--active { color: #c82e62; background: white; box-shadow: 0 4px 12px rgb(95 42 65 / 9%); }
+.mode-switch { margin: -3px 0 14px; padding: 8px 11px; color: #8a6e7b; font-size: 10px; font-weight: 700; background: rgb(255 255 255 / 65%); border: 1px solid #efdce4; border-radius: 14px; }
 
 .feed-view { padding: 2px 0 8px; }
 .feed-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }

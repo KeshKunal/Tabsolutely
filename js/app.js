@@ -1,51 +1,32 @@
 /**
- * app.js coordinates the popup: it loads tabs, turns them into profiles, reacts
- * to user choices, and asks focused modules to handle UI, matching, and storage.
+ * app.js opens Tabsolutely's small local drama feed and its optional diagnosis.
+ * Automatic matching continues in background.js while this popup is closed.
  */
 
-import { queryCurrentWindowTabs, watchClosedTabs } from "./tabs.js";
+import { queryCurrentWindowTabs } from "./tabs.js";
 import { createProfiles } from "./profiles.js";
-import { findBestMatch } from "./matching.js";
 import { diagnoseTabHabits } from "./therapist.js";
-import { clearHistory, loadHistory, markRelationshipEventsRead, recordDecision, recordEncounters } from "./storage.js";
+import { clearHistory, loadHistory, markRelationshipEventsRead, recordEncounters } from "./storage.js";
 import { createUI } from "./ui.js";
 
-const state = {
-  profiles: [],
-  currentIndex: 0,
-  history: null,
-  previousView: "deck",
-};
+const state = { profiles: [], history: null, previousView: "feed" };
 
 const ui = createUI({
-  onPass: () => choose("pass"),
-  onLike: () => choose("like"),
-  onContinue: showNextProfile,
-  onDeadContinue: showNextProfile,
-  onRestart: restartDeck,
   onRetry: initialize,
   onOpenStats: openStats,
-  onCloseStats: closeStats,
+  onCloseStats: closeOverlay,
   onOpenTherapist: openTherapist,
   onCloseTherapist: closeOverlay,
   onClear: clearSavedHistory,
-  onOpenFeed: openFeed,
-  onOpenSingles: openSingles,
 });
 
 async function initialize() {
   ui.showLoading();
 
   try {
-    const [tabs, history] = await Promise.all([
-      queryCurrentWindowTabs(),
-      loadHistory(),
-    ]);
-
+    const [tabs, history] = await Promise.all([queryCurrentWindowTabs(), loadHistory()]);
     state.profiles = createProfiles(tabs, history);
-    state.currentIndex = 0;
     state.history = await recordEncounters(history, state.profiles);
-
     await openFeed();
   } catch (error) {
     console.error("Tabsolutely failed to start:", error);
@@ -53,24 +34,10 @@ async function initialize() {
   }
 }
 
-function renderCurrentProfile() {
-  const profile = state.profiles[state.currentIndex];
-
-  if (!profile) {
-    ui.showEmpty(
-      "You’ve met everyone!",
-      `That was ${state.profiles.length} potential ${state.profiles.length === 1 ? "match" : "matches"}. Your statistics await.`,
-      true,
-    );
-    return;
-  }
-
-  ui.showProfile(profile, state.currentIndex + 1, state.profiles.length, state.history);
-}
-
 async function openFeed() {
   if (!state.history) return;
-  ui.showFeed(state.history?.relationshipEvents ?? [], state.profiles);
+  ui.showFeed(state.history.relationshipEvents, state.profiles);
+
   try {
     state.history = await markRelationshipEventsRead(state.history);
     await chrome.action.setBadgeText({ text: "" });
@@ -79,62 +46,9 @@ async function openFeed() {
   }
 }
 
-function openSingles() {
-  if (!state.history) return;
-  if (state.profiles.length === 0) {
-    ui.showEmpty("No eligible tabs", "Open a normal webpage, then try Tabsolutely again.", false);
-    return;
-  }
-  renderCurrentProfile();
-}
-
-async function choose(decision) {
-  const profile = state.profiles[state.currentIndex];
-  if (!profile || ui.isAnimating()) return;
-
-  await ui.animateDecision(decision);
-
-  const candidates = decision === "like"
-    ? state.profiles.filter((candidate, index) => index !== state.currentIndex && candidate.id !== profile.id)
-    : [];
-  const match = decision === "like" ? findBestMatch(profile, candidates) : null;
-
-  try {
-    state.history = await recordDecision(state.history, decision, profile, Boolean(match));
-  } catch (error) {
-    console.warn("The choice could not be saved, but swiping can continue.", error);
-  }
-
-  if (decision === "like") {
-    state.currentIndex += 1;
-
-    if (match) {
-      ui.showMatch(profile, match.profile, match.result);
-      return;
-    }
-  } else {
-    state.currentIndex += 1;
-  }
-
-  renderCurrentProfile();
-}
-
-function showNextProfile() {
-  renderCurrentProfile();
-}
-
-function restartDeck() {
-  state.currentIndex = 0;
-  renderCurrentProfile();
-}
-
 function openStats() {
   state.previousView = ui.currentView();
   ui.showStats(state.history);
-}
-
-function closeStats() {
-  ui.restoreView(state.previousView);
 }
 
 function openTherapist() {
@@ -147,27 +61,11 @@ function closeOverlay() {
 }
 
 async function clearSavedHistory() {
-  const confirmed = window.confirm("Clear all likes, passes, matches, and Tabsolutely statistics?");
+  const confirmed = window.confirm("Clear Tabsolutely's local drama feed and statistics?");
   if (!confirmed) return;
 
   state.history = await clearHistory();
-  ui.showStats(state.history);
+  await openFeed();
 }
 
-function handleClosedTab(tabId) {
-  const removedIndex = state.profiles.findIndex((profile) => profile.id === tabId);
-  if (removedIndex < 0) return;
-
-  const [departedProfile] = state.profiles.splice(removedIndex, 1);
-  if (removedIndex < state.currentIndex) state.currentIndex -= 1;
-  ui.showDeadTab(departedProfile);
-}
-
-document.addEventListener("keydown", (event) => {
-  if (ui.currentView() !== "deck" || event.altKey || event.ctrlKey || event.metaKey) return;
-  if (event.key === "ArrowLeft") choose("pass");
-  if (event.key === "ArrowRight") choose("like");
-});
-
-watchClosedTabs(handleClosedTab);
 initialize();

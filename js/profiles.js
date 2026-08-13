@@ -104,7 +104,6 @@ function createProfileFromEvidence(evidence) {
 }
 
 function contextualBio(evidence, persona, seed) {
-  if (evidence.previousPasses > 0) return `You rejected me ${evidence.previousPasses === 1 ? "once" : `${evidence.previousPasses} times`}, yet here you are reading my profile again.`;
   if (evidence.domain.endsWith("hackclub.com") && evidence.pathSignals.includes("ysws")) return "You ship, we ship. Sleep was never in the grant requirements.";
   if (evidence.duplicateCount >= 3) return `I’m not the only one. There are ${evidence.duplicateCount} of me open, and none of us knows who is the favorite.`;
   if (evidence.muted) return "We should talk about our communication problem. Apparently, you disabled it.";
@@ -123,7 +122,6 @@ function contextualGreenFlags(evidence, baseFlags, category) {
   const flags = [];
   if (evidence.pinned) flags.push("You’ve committed. Terrifying, but emotionally mature.");
   if (evidence.active) flags.push("Currently receiving your undivided twelve-second attention.");
-  if (evidence.previousLikes > 0) flags.push(`You came back and liked this ${evidence.previousLikes === 1 ? "once" : `${evidence.previousLikes} times`}. Consistency!`);
   if (category === "Education") flags.push("Wants you to grow, even when the quiz disagrees.");
   if (category === "Development") flags.push("Has actually contributed something to society—or at least compiled.");
   flags.push(...baseFlags);
@@ -134,7 +132,6 @@ function contextualRedFlags(evidence, baseFlags, category) {
   const flags = [];
   if (evidence.duplicateCount > 1) flags.push(`You opened ${evidence.duplicateCount} copies because apparently one relationship wasn’t enough.`);
   if (evidence.muted) flags.push("Communication has been disabled. Literally.");
-  if (evidence.previousPasses > 0) flags.push("Has documentary evidence that you already rejected this.");
   if (evidence.previousEncounters >= 5) flags.push(`This domain has returned ${evidence.previousEncounters} times. Boundaries are unclear.`);
   if (category === "Shopping") flags.push("May interpret affection as expedited delivery.");
   flags.push(...baseFlags);

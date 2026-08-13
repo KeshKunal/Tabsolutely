@@ -24,8 +24,7 @@
       </header>
 
       <nav class="mode-switch" aria-label="Tabsolutely sections">
-        <button class="mode-button mode-button--active" id="feed-button" type="button" aria-pressed="true">Browser drama</button>
-        <button class="mode-button" id="singles-button" type="button" aria-pressed="false">Meet the singles</button>
+        <span class="mode-label">Your tabs have been busy.</span>
       </nav>
 
       <section class="view view--center" id="loading-view" aria-live="polite">
@@ -46,77 +45,6 @@
           <h3>The browser is suspiciously peaceful</h3>
           <p>Open another normal webpage. Tabsolutely will quietly introduce it to the tabs already here.</p>
         </div>
-      </section>
-
-      <section class="view" id="deck-view" hidden>
-        <p class="deck-progress" id="deck-progress"></p>
-        <aside class="ex-alert" id="ex-alert" hidden aria-live="polite">
-          <strong>Your ex is back</strong>
-          <span id="ex-message"></span>
-        </aside>
-        <article class="profile-card" id="profile-card" aria-live="polite">
-          <div class="profile-hero">
-            <img class="profile-avatar" id="profile-avatar" alt="" width="72" height="72">
-            <span class="category-badge" id="profile-category"></span>
-          </div>
-          <h2 id="profile-name"></h2>
-          <p class="domain" id="profile-domain"></p>
-          <p class="bio" id="profile-bio"></p>
-          <p class="jealousy-note" id="jealousy-note" hidden></p>
-          <ul class="traits" id="profile-traits" aria-label="Personality traits"></ul>
-          <p class="looking-for"><strong>Looking for</strong><span id="profile-looking-for"></span></p>
-          <div class="flags-grid">
-            <section>
-              <h3><span aria-hidden="true">●</span> Green flags</h3>
-              <ul id="green-flags"></ul>
-            </section>
-            <section>
-              <h3 class="red-heading"><span aria-hidden="true">▲</span> Red flags</h3>
-              <ul id="red-flags"></ul>
-            </section>
-          </div>
-        </article>
-        <div class="actions" aria-label="Profile actions">
-          <button class="action-button action-button--pass" id="pass-button" type="button"><span aria-hidden="true">×</span> Pass</button>
-          <button class="action-button action-button--like" id="like-button" type="button"><span aria-hidden="true">♥</span> Like</button>
-        </div>
-        <p class="keyboard-hint">Keyboard: ← pass · → like</p>
-      </section>
-
-      <section class="view view--center match-view" id="match-view" hidden aria-live="polite">
-        <p class="match-kicker" id="match-kicker">It’s a match!</p>
-        <div class="match-pair" aria-hidden="true">
-          <img id="match-first-avatar" alt="" width="64" height="64">
-          <span>♥</span>
-          <img id="match-second-avatar" alt="" width="64" height="64">
-        </div>
-        <h2 id="match-title"></h2>
-        <div class="couple-dialogue" id="couple-dialogue">
-          <p><strong id="dialogue-first-name"></strong><span id="dialogue-first"></span></p>
-          <p><strong id="dialogue-second-name"></strong><span id="dialogue-second"></span></p>
-        </div>
-        <div class="score-ring" id="score-ring"><strong id="match-score"></strong><span>compatible</span></div>
-        <p class="relationship" id="match-relationship"></p>
-        <ul class="reasons" id="match-reasons"></ul>
-        <section class="wedding-details" id="wedding-details" hidden>
-          <p><span>Wedding venue</span><strong id="wedding-venue"></strong></p>
-          <p><span>Dress code</span><strong id="wedding-dress"></strong></p>
-          <blockquote id="wedding-vow"></blockquote>
-        </section>
-        <button class="primary-button" id="continue-button" type="button">Keep swiping</button>
-      </section>
-
-      <section class="view view--center dead-view" id="dead-view" hidden aria-live="assertive">
-        <p class="dead-kicker">A profile left the browser</p>
-        <div class="broken-heart" aria-hidden="true">♡</div>
-        <h2 id="dead-title"></h2>
-        <p id="dead-message"></p>
-        <dl class="last-seen">
-          <div><dt>Last seen</dt><dd>Just now</dd></div>
-          <div><dt>Cause</dt><dd id="dead-cause">User closed the tab</dd></div>
-          <div><dt>Status</dt><dd>Gone but not forgotten</dd></div>
-        </dl>
-        <button class="primary-button" id="dead-continue-button" type="button">Respectfully move on</button>
       </section>
 
       <section class="view stats-view" id="stats-view" hidden>
@@ -147,13 +75,6 @@
         </section>
         <blockquote id="diagnosis-treatment"></blockquote>
         <p class="therapist-disclaimer">Not medical advice. Barely browser advice.</p>
-      </section>
-
-      <section class="view view--center" id="empty-view" hidden aria-live="polite">
-        <div class="empty-icon" aria-hidden="true">♡</div>
-        <h2 id="empty-title">No more profiles</h2>
-        <p id="empty-message">Your tabs have all had their moment in the spotlight.</p>
-        <button class="primary-button" id="restart-button" type="button">Meet them again</button>
       </section>
 
       <section class="view view--center" id="error-view" hidden role="alert">
