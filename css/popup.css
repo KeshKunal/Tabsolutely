@@ -112,13 +112,21 @@ button:not(:disabled) { cursor: pointer; }
 .match-view h2 { margin-top: 13px; }
 .score-ring {
   display: grid; width: 112px; height: 112px; margin: 10px 0; place-content: center; color: #5b3d4a; text-align: center;
-  background: radial-gradient(circle, white 60%, transparent 62%), conic-gradient(#f2447e 0 82%, #f3dde5 82% 100%); border-radius: 50%;
+  background: radial-gradient(circle, white 60%, transparent 62%), conic-gradient(#f2447e 0 var(--score, 0%), #f3dde5 var(--score, 0%) 100%); border-radius: 50%;
 }
 .score-ring strong { display: block; color: #d72f68; font-size: 29px; line-height: 1; }
 .score-ring span { margin-top: 4px; font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
 .relationship { margin: 3px 0 10px; color: #462e3a; font-family: Georgia, serif; font-size: 17px; font-style: italic; }
 .reasons { width: 100%; margin: 0 0 15px; padding: 12px 14px; color: #68505c; font-size: 11px; line-height: 1.45; text-align: left; background: rgb(255 255 255 / 75%); border-radius: 15px; list-style: none; }
 .reasons li + li { margin-top: 5px; }
+.wedding-details { width: 100%; margin: -5px 0 13px; padding: 5px 13px 11px; color: #58424c; background: linear-gradient(145deg, #fff8dc, #fff0f6); border: 1px solid #ead69a; border-radius: 16px; }
+.wedding-details p { display: flex; margin: 0; padding: 8px 0; justify-content: space-between; gap: 12px; font-size: 10px; }
+.wedding-details p + p { border-top: 1px solid rgb(207 179 101 / 25%); }
+.wedding-details span { color: #89744b; }
+.wedding-details strong { text-align: right; }
+.wedding-details blockquote { margin: 4px 0 0; padding-top: 9px; color: #9e3159; font-family: Georgia, serif; font-size: 12px; border-top: 1px solid rgb(207 179 101 / 25%); }
+.match-view--marriage .match-kicker { color: #9b7221; }
+.match-view--marriage .match-pair span { color: #d49d2e; }
 .primary-button { width: 100%; padding: 0 20px; color: white; background: linear-gradient(135deg, #ff5e93, #de2865); box-shadow: 0 10px 22px rgb(222 40 101 / 20%); }
 
 .dead-view { padding-top: 18px; justify-content: flex-start; }

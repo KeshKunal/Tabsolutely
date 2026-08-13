@@ -64,16 +64,21 @@
       </section>
 
       <section class="view view--center match-view" id="match-view" hidden aria-live="polite">
-        <p class="match-kicker">It’s a match!</p>
+        <p class="match-kicker" id="match-kicker">It’s a match!</p>
         <div class="match-pair" aria-hidden="true">
           <img id="match-first-avatar" alt="" width="64" height="64">
           <span>♥</span>
           <img id="match-second-avatar" alt="" width="64" height="64">
         </div>
         <h2 id="match-title"></h2>
-        <div class="score-ring"><strong id="match-score"></strong><span>compatible</span></div>
+        <div class="score-ring" id="score-ring"><strong id="match-score"></strong><span>compatible</span></div>
         <p class="relationship" id="match-relationship"></p>
         <ul class="reasons" id="match-reasons"></ul>
+        <section class="wedding-details" id="wedding-details" hidden>
+          <p><span>Wedding venue</span><strong id="wedding-venue"></strong></p>
+          <p><span>Dress code</span><strong id="wedding-dress"></strong></p>
+          <blockquote id="wedding-vow"></blockquote>
+        </section>
         <button class="primary-button" id="continue-button" type="button">Keep swiping</button>
       </section>
 

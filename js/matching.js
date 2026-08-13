@@ -49,10 +49,13 @@ export function calculateCompatibility(first, second) {
   score += stablePairBonus(first.domain, second.domain);
   score = Math.max(0, Math.min(99, score));
 
+  const marriage = score >= 95 ? createWeddingPlan(first, second) : null;
+
   return {
     score,
     label: relationshipLabel(score),
     reasons: reasons.slice(0, 3),
+    marriage,
   };
 }
 
@@ -83,4 +86,22 @@ function categoryReason(first, second) {
   if (categories.has("Education") && categories.has("Search")) return "Curiosity has found its research assistant";
   if (categories.has("Development") && categories.has("Search")) return "Every error message deserves a second opinion";
   return "Their browser energy is weirdly complementary";
+}
+
+function createWeddingPlan(first, second) {
+  const seed = stablePairBonus(first.domain, second.domain);
+  const venues = ["/dev/null", "an incognito window", "the bookmarks bar", "a tastefully pinned tab", "localhost:3000"];
+  const dressCodes = ["Business casual", "Dark mode formal", "Cache optional", "Tabs, not spaces", "Come as your favicon"];
+  const vows = [
+    "I promise to stay open through every refresh.",
+    "Till browser crash do us part.",
+    "For richer or poorer, online or cached.",
+    "I choose you in this window and every restored session.",
+  ];
+
+  return {
+    venue: venues[seed % venues.length],
+    dressCode: dressCodes[(seed + 2) % dressCodes.length],
+    vow: vows[(seed + 1) % vows.length],
+  };
 }

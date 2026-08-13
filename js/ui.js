@@ -68,12 +68,22 @@ export function createUI(handlers) {
   }
 
   function showMatch(first, second, result) {
+    const isMarriage = Boolean(result.marriage);
     setImage(elements.matchFirstAvatar, first.favicon, "");
     setImage(elements.matchSecondAvatar, second.favicon, "");
     elements.matchTitle.textContent = `${first.name} + ${second.name}`;
     elements.matchScore.textContent = `${result.score}%`;
+    elements.scoreRing.style.setProperty("--score", `${result.score}%`);
     elements.matchRelationship.textContent = result.label;
     renderList(elements.matchReasons, result.reasons.map((reason) => `✓ ${reason}`), "li");
+    elements.matchKicker.textContent = isMarriage ? "They’re getting married!" : "It’s a match!";
+    elements.matchView.classList.toggle("match-view--marriage", isMarriage);
+    elements.weddingDetails.hidden = !isMarriage;
+    if (result.marriage) {
+      elements.weddingVenue.textContent = result.marriage.venue;
+      elements.weddingDress.textContent = result.marriage.dressCode;
+      elements.weddingVow.textContent = `“${result.marriage.vow}”`;
+    }
     showView("match");
     elements.continueButton.focus({ preventScroll: true });
   }
@@ -158,9 +168,12 @@ function collectElements() {
     therapistButton: required("therapist-button"), closeTherapistButton: required("close-therapist-button"),
     diagnosisTitle: required("diagnosis-title"), diagnosisNote: required("diagnosis-note"),
     diagnosisSymptoms: required("diagnosis-symptoms"), diagnosisTreatment: required("diagnosis-treatment"),
+    matchView: required("match-view"), matchKicker: required("match-kicker"), scoreRing: required("score-ring"),
     matchFirstAvatar: required("match-first-avatar"), matchSecondAvatar: required("match-second-avatar"),
     matchTitle: required("match-title"), matchScore: required("match-score"), matchRelationship: required("match-relationship"),
     matchReasons: required("match-reasons"), continueButton: required("continue-button"), statGrid: required("stat-grid"),
+    weddingDetails: required("wedding-details"), weddingVenue: required("wedding-venue"),
+    weddingDress: required("wedding-dress"), weddingVow: required("wedding-vow"),
     deadTitle: required("dead-title"), deadMessage: required("dead-message"), deadContinueButton: required("dead-continue-button"),
     domainStats: required("domain-stats"), clearButton: required("clear-button"), emptyTitle: required("empty-title"),
     emptyMessage: required("empty-message"), restartButton: required("restart-button"), errorMessage: required("error-message"),
