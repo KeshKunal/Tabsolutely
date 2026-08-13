@@ -18,7 +18,7 @@ Tabsolutely is a humorous, privacy-friendly Chromium extension that turns curren
 - Local statistics, clear-history control, empty states, and error recovery
 - Accessible labels, visible focus, live regions, and reduced-motion support
 
-## Privacy
+## Privacy - Your safety is our priority
 
 Tabsolutely has no server, analytics, accounts, database, advertising SDK, or AI API. Tab details are processed only while the popup is open and are never transmitted.
 
@@ -49,8 +49,6 @@ Tabsolutely/
 |-- popup.html          # Accessible structure for every popup view
 `-- README.md
 ```
-
-Every HTML, CSS, and JavaScript file starts with a comment describing its responsibility. JSON cannot contain comments, so `manifest.json` is explained here.
 
 ## Libraries and permissions
 
@@ -89,48 +87,3 @@ After changing a file, reload Tabsolutely from the extensions page and reopen it
 6. `storage.js` saves only aggregate decisions, domain counts, and rejection timestamps.
 7. `therapist.js` analyzes current profile statistics without reading or storing additional browser data.
 8. While the popup is open, `tabs.js` listens for real tab closures and `app.js` displays a Dead Tab interruption.
-
-## Test checklist
-
-### Core experience
-
-- Open several ordinary pages and confirm each becomes a profile.
-- Test Pass, Like, Left Arrow, and Right Arrow.
-- Confirm a like produces a score, reasons, relationship label, and correctly filled score ring.
-- Finish the deck and restart it.
-- Verify statistics and clear all saved history.
-
-### Next-phase features
-
-- Pass YouTube, reload the extension, and confirm its next profile says **Your ex is back**.
-- Open several duplicates and distracting sites, then select **Tab Therapist** and inspect the diagnosis.
-- Keep the popup open and close one of its profiled browser tabs. Confirm the Dead Tab notice appears.
-- Open GitHub and GitLab together, or Google and Bing, and confirm their profiles become jealous.
-- Open two pinned tabs from `google.com`, like one, and confirm a score of at least 95% produces a wedding.
-
-### Resilience and accessibility
-
-- Try `chrome://extensions` or `edge://settings`; it should become a Mysterious Stranger.
-- Test a missing favicon, a muted tab, pinned tabs, and duplicate domains.
-- Navigate every button with the keyboard and check the visible focus indicator.
-- Enable reduced motion in the operating system and confirm the experience remains usable.
-
-## Troubleshooting
-
-**Manifest is unreadable:** Select the folder containing `manifest.json`. JSON does not allow comments or trailing commas.
-
-**Changes do not appear:** Reload the extension from `chrome://extensions` or `edge://extensions`, then close and reopen the popup.
-
-**The Tabs API is unavailable:** Open Tabsolutely from its installed toolbar action rather than opening `popup.html` as a normal file.
-
-**A module fails to load:** Inspect the popup and check the Console. Confirm the filenames and relative import paths inside `js/` match exactly.
-
-**An ex does not return:** Pass the profile once, keep or reopen a tab from the same domain, then reopen Tabsolutely. Ex detection intentionally uses domains rather than full URLs.
-
-**Dead Tabs do not appear:** The popup must remain open when the browser tab closes; extension popups stop running when dismissed.
-
-**Text looks corrupted:** Save files as UTF-8. `popup.html` explicitly declares UTF-8.
-
-## Future experiments
-
-Strong future candidates include Toxic Relationship reports, a two-tab battle arena, breakups that optionally close tabs, custom extension icons, and a controlled competition demo mode. New features should remain local and request no additional permission without a concrete browser-native reason.
