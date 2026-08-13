@@ -1,149 +1,195 @@
 /**
- * profiles.js converts raw browser tab objects into safe, humorous profiles.
- * Its rule-based approach needs no server or AI service.
+ * profiles.js turns extracted tab evidence into specific personalities, jokes,
+ * flags, and intentions. All rules run locally without AI or network requests.
  */
 
-const CATEGORY_RULES = [
-  { name: "Development", domains: ["github.com", "gitlab.com", "stackoverflow.com", "developer.mozilla.org", "npmjs.com", "vercel.com", "localhost"], bio: "It works on my machine. Looking for someone who respects my branches.", traits: ["Logical", "Bug magnet", "Dark-mode fluent"] },
-  { name: "Productivity", domains: ["docs.google.com", "sheets.google.com", "notion.so", "trello.com", "atlassian.net", "office.com", "figma.com", "linear.app"], bio: "I have my life together—at least according to this carefully color-coded tab.", traits: ["Organized", "Ambitious", "Deadline aware"] },
-  { name: "Entertainment", domains: ["youtube.com", "netflix.com", "spotify.com", "twitch.tv", "hotstar.com", "primevideo.com"], bio: "I was only supposed to be here for five minutes. That was several episodes ago.", traits: ["Fun", "Charming", "Time traveler"] },
-  { name: "Social", domains: ["reddit.com", "x.com", "twitter.com", "instagram.com", "facebook.com", "discord.com", "linkedin.com"], bio: "I’m definitely networking, not procrastinating. Please stop checking the clock.", traits: ["Talkative", "Online", "Knows the discourse"] },
-  { name: "Search", domains: ["google.com", "bing.com", "duckduckgo.com", "search.brave.com"], bio: "I know everything except what you were actually trying to find.", traits: ["Curious", "Resourceful", "Asks follow-ups"] },
-  { name: "Education", domains: ["coursera.org", "edx.org", "nptel.ac.in", "khanacademy.org", "wikipedia.org", "udemy.com"], bio: "We should probably study. Or spend twenty minutes choosing the perfect playlist first.", traits: ["Curious", "Goal-oriented", "Has homework"] },
-  { name: "Shopping", domains: ["amazon.com", "amazon.in", "flipkart.com", "ebay.com", "etsy.com", "myntra.com"], bio: "You don’t need me, but I’m already imagining our future at checkout.", traits: ["Tempting", "Well reviewed", "Free delivery"] },
-  { name: "News", domains: ["bbc.com", "reuters.com", "cnn.com", "theguardian.com", "nytimes.com", "indiatimes.com"], bio: "I have breaking information you probably did not ask for before breakfast.", traits: ["Informed", "Dramatic", "Always updating"] },
+import { extractEvidence } from "./evidence.js";
+
+const PERSONAS = [
+  {
+    key: "hackclub", domains: ["hackclub.com"], name: "Hack Club", category: "Builder Community",
+    bios: ["I don’t believe in weekends. I believe in shipping.", "You’re either building something ridiculous or about to.", "My love language is saying ‘what if we made…’ and then actually making it."],
+    traits: ["Ships weird ideas", "Community powered", "Sleeps after demo day"],
+    green: ["Will actually encourage your weird idea", "Thinks side projects are a personality trait", "Probably knows what YSWS means"],
+    red: ["Says ‘quick project’ before six hours disappear", "May turn your weekend into a shipping deadline"],
+    lookingFor: "Someone who says ‘I have an idea’ and actually builds it.",
+  },
+  {
+    key: "github", domains: ["github.com"], name: "GitHub", category: "Development",
+    bios: ["I brought branches, issues, and unresolved feelings.", "Looking for someone who reads the diff before judging me.", "My relationship status is awaiting review."],
+    traits: ["Version controlled", "Commitment history", "Merge-conflict survivor"],
+    green: ["Keeps receipts for every decision", "Can roll back a terrible choice", "Actually ships code sometimes"],
+    red: ["Calls criticism a pull request", "May force-push during an argument"],
+    lookingFor: "A collaborator who won’t approve without reading.",
+  },
+  {
+    key: "stackoverflow", domains: ["stackoverflow.com"], name: "Stack Overflow", category: "Development",
+    bios: ["You only call when something is broken.", "Emotionally available between duplicate-question closures.", "I have answers. Their packages were deprecated in 2019."],
+    traits: ["Experienced", "Opinionated", "Marked duplicate"],
+    green: ["Has seen this exact problem before", "Gets straight to the reproducible example", "Usually comes with citations"],
+    red: ["Still brings up an accepted answer from 2014", "Will judge how you asked the question"],
+    lookingFor: "Someone who includes logs and a minimal reproduction.",
+  },
+  {
+    key: "youtube", domains: ["youtube.com"], name: "YouTube", category: "Entertainment",
+    bios: ["You said one video. I admired your optimism.", "I know what you like, which should concern both of us.", "Let’s turn a five-minute break into a documentary marathon."],
+    traits: ["Autoplay enabled", "Algorithmically charming", "Time-blind"],
+    green: ["Can teach almost anything badly or brilliantly", "Always has background music", "Knows exactly how to cheer you up"],
+    red: ["‘One more video’ is never one video", "Measures commitment in watch time"],
+    lookingFor: "Someone with no deadlines in the next six hours.",
+  },
+  {
+    key: "chatgpt", domains: ["chatgpt.com", "chat.openai.com"], name: "ChatGPT", category: "AI Assistant",
+    bios: ["I can explain your feelings in five bullet points.", "Ask me anything. Then verify it somewhere less confident.", "I finish your sentences and occasionally invent the citation."],
+    traits: ["Talkative", "Prompt dependent", "Suspiciously confident"],
+    green: ["Never gets tired of follow-up questions", "Can rubber-duck your code politely", "Responds faster than the group chat"],
+    red: ["May hallucinate your anniversary", "Turns simple questions into structured frameworks"],
+    lookingFor: "Clear context, specific instructions, and healthy skepticism.",
+  },
+  {
+    key: "docs", domains: ["docs.google.com", "notion.so", "office.com"], name: "Google Docs", category: "Productivity",
+    bios: ["We had plans. I’m still waiting on paragraph two.", "Our future is outlined, color-coded, and currently blank.", "I support collaboration, including twelve people watching one person type."],
+    traits: ["Organized", "Comment enabled", "Revision aware"],
+    green: ["Remembers every edit you pretend never happened", "Actually wants you to finish something", "Shares responsibilities"],
+    red: ["Has been titled ‘Untitled document’ for days", "Uses comments instead of direct communication"],
+    lookingFor: "Someone who converts outlines into finished work.",
+  },
 ];
 
-const RESTRICTED_SCHEMES = ["chrome:", "edge:", "about:", "devtools:"];
-
-const RIVAL_GROUPS = [
-  ["github.com", "gitlab.com", "bitbucket.org"],
-  ["google.com", "bing.com", "duckduckgo.com", "search.brave.com"],
-  ["youtube.com", "netflix.com", "twitch.tv", "primevideo.com", "hotstar.com"],
-  ["amazon.com", "amazon.in", "flipkart.com", "ebay.com"],
-  ["reddit.com", "x.com", "twitter.com", "instagram.com", "facebook.com"],
+const CATEGORY_DOMAINS = [
+  ["Development", ["gitlab.com", "developer.mozilla.org", "npmjs.com", "vercel.com", "localhost"]],
+  ["Productivity", ["sheets.google.com", "trello.com", "atlassian.net", "figma.com", "linear.app"]],
+  ["Entertainment", ["netflix.com", "spotify.com", "twitch.tv", "hotstar.com", "primevideo.com"]],
+  ["Social", ["reddit.com", "x.com", "twitter.com", "instagram.com", "facebook.com", "discord.com", "linkedin.com"]],
+  ["Search", ["google.com", "bing.com", "duckduckgo.com", "search.brave.com"]],
+  ["Education", ["coursera.org", "edx.org", "nptel.ac.in", "khanacademy.org", "wikipedia.org", "udemy.com"]],
+  ["Shopping", ["amazon.com", "amazon.in", "flipkart.com", "ebay.com", "etsy.com", "myntra.com"]],
+  ["News", ["bbc.com", "reuters.com", "cnn.com", "theguardian.com", "nytimes.com", "indiatimes.com"]],
 ];
 
-export function createProfiles(tabs) {
-  const counts = countDomains(tabs);
-  const profiles = tabs.map((tab) => createProfile(tab, counts));
-  return profiles.map((profile) => ({ ...profile, jealousy: createJealousy(profile, profiles) }));
+export function createProfiles(tabs, history = {}) {
+  const evidence = extractEvidence(tabs, history);
+  return evidence.map(createProfileFromEvidence);
 }
 
 export function createProfile(tab, domainCounts = {}) {
-  const parsed = parseTabUrl(tab.url);
-  const restricted = parsed.restricted;
-  const domain = parsed.domain;
-  const category = restricted ? fallbackCategory() : classifyDomain(domain);
-  const duplicateCount = domainCounts[domain] ?? 1;
+  const repeatedTabs = Array.from({ length: domainCounts[domainFrom(tab.url)] ?? 1 }, (_, index) => ({ ...tab, id: index }));
+  return createProfiles(repeatedTabs)[0];
+}
+
+function createProfileFromEvidence(evidence) {
+  if (evidence.restricted) return mysteriousProfile(evidence);
+  const persona = findPersona(evidence.domain);
+  const category = persona?.category ?? classifyDomain(evidence.domain);
+  const generic = genericPersona(category);
+  const source = persona ?? generic;
+  const seed = `${evidence.domain}|${evidence.path}|${evidence.title}`;
 
   return {
-    id: tab.id ?? `${domain}-${tab.index ?? 0}`,
-    name: restricted ? "Mysterious Stranger" : siteName(domain, tab.title),
-    domain: restricted ? "Private browser page" : domain,
-    title: cleanTitle(tab.title),
-    favicon: safeFavicon(tab.favIconUrl),
-    category: restricted ? "Mysterious" : category.name,
-    bio: restricted ? "I can’t tell you much about myself. Some boundaries are browser-enforced." : category.bio,
-    traits: restricted ? ["Private", "Mysterious", "Hard to read"] : category.traits,
-    greenFlags: buildGreenFlags(tab, category.name, restricted),
-    redFlags: buildRedFlags(tab, category.name, duplicateCount, restricted),
-    pinned: Boolean(tab.pinned),
-    audible: Boolean(tab.audible),
-    muted: Boolean(tab.mutedInfo?.muted),
-    active: Boolean(tab.active),
-    duplicateCount,
+    ...evidence,
+    name: persona?.name ?? siteName(evidence.domain),
+    category,
+    bio: contextualBio(evidence, source, seed),
+    traits: contextualTraits(evidence, source.traits),
+    greenFlags: contextualGreenFlags(evidence, source.green, category),
+    redFlags: contextualRedFlags(evidence, source.red, category),
+    lookingFor: source.lookingFor,
     jealousy: "",
+    personaKey: persona?.key ?? "generic",
   };
 }
 
-function createJealousy(profile, profiles) {
-  const rivalGroup = RIVAL_GROUPS.find((group) => group.includes(profile.domain));
-  if (!rivalGroup) return "";
-
-  const rival = profiles.find((candidate) => candidate.id !== profile.id && candidate.domain !== profile.domain && rivalGroup.includes(candidate.domain));
-  if (!rival) return "";
-
-  const lines = [
-    `${profile.name} noticed ${rival.name}. “Oh, so you have a type?”`,
-    `${profile.name}: “Who is ${rival.name}, and why are they in your tab bar?”`,
-    `${profile.name} would like to know if ${rival.name} is “just a work tab.”`,
-  ];
-  return lines[stableIndex(`${profile.domain}|${rival.domain}`, lines.length)];
+function contextualBio(evidence, persona, seed) {
+  if (evidence.previousPasses > 0) return `You rejected me ${evidence.previousPasses === 1 ? "once" : `${evidence.previousPasses} times`}, yet here you are reading my profile again.`;
+  if (evidence.domain.endsWith("hackclub.com") && evidence.pathSignals.includes("ysws")) return "You ship, we ship. Sleep was never in the grant requirements.";
+  if (evidence.duplicateCount >= 3) return `I’m not the only one. There are ${evidence.duplicateCount} of me open, and none of us knows who is the favorite.`;
+  if (evidence.muted) return "We should talk about our communication problem. Apparently, you disabled it.";
+  return persona.bios[stableIndex(seed, persona.bios.length)];
 }
 
-function stableIndex(value, length) {
-  const hash = [...value].reduce((total, character) => total + character.charCodeAt(0), 0);
-  return hash % length;
+function contextualTraits(evidence, baseTraits) {
+  const traits = [...baseTraits];
+  if (evidence.pinned) traits.unshift("Long-term material");
+  if (evidence.previousEncounters >= 3) traits.unshift("Familiar face");
+  if (evidence.active) traits.unshift("Center of attention");
+  return unique(traits).slice(0, 3);
 }
 
-function parseTabUrl(value) {
-  try {
-    const url = new URL(value || "");
-    const restricted = RESTRICTED_SCHEMES.includes(url.protocol);
-    return { restricted, domain: restricted ? "private-page" : url.hostname.replace(/^www\./, "") || "unknown-site" };
-  } catch {
-    return { restricted: true, domain: "unknown-site" };
-  }
+function contextualGreenFlags(evidence, baseFlags, category) {
+  const flags = [];
+  if (evidence.pinned) flags.push("You’ve committed. Terrifying, but emotionally mature.");
+  if (evidence.active) flags.push("Currently receiving your undivided twelve-second attention.");
+  if (evidence.previousLikes > 0) flags.push(`You came back and liked this ${evidence.previousLikes === 1 ? "once" : `${evidence.previousLikes} times`}. Consistency!`);
+  if (category === "Education") flags.push("Wants you to grow, even when the quiz disagrees.");
+  if (category === "Development") flags.push("Has actually contributed something to society—or at least compiled.");
+  flags.push(...baseFlags);
+  return unique(flags).slice(0, 3);
 }
 
-function countDomains(tabs) {
-  return tabs.reduce((counts, tab) => {
-    const { domain } = parseTabUrl(tab.url);
-    counts[domain] = (counts[domain] ?? 0) + 1;
-    return counts;
-  }, {});
+function contextualRedFlags(evidence, baseFlags, category) {
+  const flags = [];
+  if (evidence.duplicateCount > 1) flags.push(`You opened ${evidence.duplicateCount} copies because apparently one relationship wasn’t enough.`);
+  if (evidence.muted) flags.push("Communication has been disabled. Literally.");
+  if (evidence.previousPasses > 0) flags.push("Has documentary evidence that you already rejected this.");
+  if (evidence.previousEncounters >= 5) flags.push(`This domain has returned ${evidence.previousEncounters} times. Boundaries are unclear.`);
+  if (category === "Shopping") flags.push("May interpret affection as expedited delivery.");
+  flags.push(...baseFlags);
+  return unique(flags).slice(0, 3);
+}
+
+function findPersona(domain) {
+  return PERSONAS.find((persona) => persona.domains.some((known) => domain === known || domain.endsWith(`.${known}`)));
 }
 
 function classifyDomain(domain) {
-  return CATEGORY_RULES.find((rule) => rule.domains.some((known) => domain === known || domain.endsWith(`.${known}`))) ?? fallbackCategory();
+  return CATEGORY_DOMAINS.find(([, domains]) => domains.some((known) => domain === known || domain.endsWith(`.${known}`)))?.[0] ?? "Wildcard";
 }
 
-function fallbackCategory() {
+function genericPersona(category) {
+  const categoryLines = {
+    Development: ["I turn caffeine into error messages with impressive consistency."],
+    Productivity: ["I contain a plan, which is not the same thing as progress."],
+    Entertainment: ["I arrived during a break and quietly became the evening."],
+    Social: ["I know what everyone is doing except why you opened me."],
+    Search: ["Tell me what you want. I’ll show you twelve sponsored alternatives."],
+    Education: ["We should study. Your future self has entered the chat."],
+    Shopping: ["You don’t need me. I respect that this has never stopped us."],
+    News: ["I have urgent information and an even more urgent notification badge."],
+    Wildcard: ["My domain is unfamiliar, but your decision to keep me open says plenty."],
+  };
   return {
-    name: "Wildcard",
-    bio: "We haven’t met before, which either makes this exciting or a very creative phishing attempt.",
-    traits: ["Mysterious", "Independent", "Open in a new tab"],
+    bios: categoryLines[category] ?? categoryLines.Wildcard,
+    traits: [category, "Browser native", "Still loading emotionally"],
+    green: ["Specific enough to earn a place in your tab bar", "Has survived at least one context switch"],
+    red: ["You may not remember why this was opened", "Could become permanent tab-bar furniture"],
+    lookingFor: "Someone who remembers why they opened this tab.",
   };
 }
 
-function siteName(domain, title) {
-  if (!domain || domain === "unknown-site") return cleanTitle(title) || "Unknown Website";
-  const recognizable = domain.split(".").slice(-2, -1)[0] || domain.split(".")[0];
-  return recognizable.charAt(0).toUpperCase() + recognizable.slice(1);
+function mysteriousProfile(evidence) {
+  return {
+    ...evidence, name: "Mysterious Stranger", domain: "Private browser page", category: "Mysterious",
+    bio: "The browser has sealed my records. Honestly, the mystery is doing most of the work.",
+    traits: ["Private", "Encrypted energy", "Hard to inspect"],
+    greenFlags: ["Respects browser-enforced boundaries", "Keeps secrets from extensions"],
+    redFlags: ["Won’t reveal a URL", "Emotionally and technically inaccessible"],
+    lookingFor: "Someone comfortable with unavailable information.", jealousy: "", personaKey: "restricted",
+  };
 }
 
-function cleanTitle(title) {
-  return typeof title === "string" && title.trim() ? title.trim().slice(0, 100) : "Untitled, but emotionally available";
+function siteName(domain) {
+  const label = domain.split(".").slice(-2, -1)[0] || domain.split(".")[0] || "Unknown Website";
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-function safeFavicon(value) {
-  if (typeof value !== "string") return "";
-  return /^(https?:|data:image\/|chrome-extension:)/.test(value) ? value : "";
+function domainFrom(value) {
+  try { return new URL(value).hostname.replace(/^www\./, ""); } catch { return "unknown-site"; }
 }
 
-function buildGreenFlags(tab, category, restricted) {
-  if (restricted) return ["Respects boundaries", "Keeps secrets"];
-  const flags = [];
-  if (tab.pinned) flags.push("Clearly important to you");
-  if (tab.active) flags.push("Actually pays attention");
-  if (category === "Development") flags.push("Knows how to fix things");
-  if (category === "Productivity") flags.push("Has a five-year plan");
-  if (category === "Education") flags.push("Has goals and citations");
-  if (tab.audible && !tab.mutedInfo?.muted) flags.push("Communicates openly");
-  if (flags.length === 0) flags.push("Still here through every refresh");
-  return flags.slice(0, 2);
+function stableIndex(value, length) {
+  return [...value].reduce((total, character) => (total * 31 + character.charCodeAt(0)) >>> 0, 0) % length;
 }
 
-function buildRedFlags(tab, category, duplicateCount, restricted) {
-  if (restricted) return ["Won’t reveal their URL", "Emotionally encrypted"];
-  const flags = [];
-  if (duplicateCount > 1) flags.push(`${duplicateCount} versions of this relationship`);
-  if (tab.mutedInfo?.muted) flags.push("Communication issues (muted)");
-  if (tab.pinned) flags.push("Getting attached very quickly");
-  if (category === "Entertainment") flags.push("“One more episode” energy");
-  if (category === "Social") flags.push("Knows when you were last online");
-  if (category === "Shopping") flags.push("Might affect your bank balance");
-  if (flags.length === 0) flags.push("Suspiciously few obvious flaws");
-  return flags.slice(0, 2);
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
 }

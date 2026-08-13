@@ -6,7 +6,7 @@
 const STORAGE_KEY = "tabsolutelyHistory";
 
 export function emptyHistory() {
-  return { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {}, lastPassedAt: {} };
+  return { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {}, lastPassedAt: {}, domainMemory: {} };
 }
 
 export async function loadHistory() {
@@ -33,6 +33,25 @@ export async function recordDecision(current, decision, profile, createdMatch = 
   return history;
 }
 
+/** Remember aggregate encounters without persisting titles, paths, or full URLs. */
+export async function recordEncounters(current, profiles) {
+  const history = normalizeHistory(current);
+  const now = Date.now();
+  const domains = new Set(profiles.map((profile) => profile.domain));
+
+  domains.forEach((domain) => {
+    const existing = history.domainMemory[domain] ?? {};
+    history.domainMemory[domain] = {
+      firstSeenAt: existing.firstSeenAt ?? now,
+      lastSeenAt: now,
+      encounters: numberOrZero(existing.encounters) + 1,
+    };
+  });
+
+  await save(history);
+  return history;
+}
+
 export async function clearHistory() {
   const history = emptyHistory();
   if (globalThis.chrome?.storage?.local) await chrome.storage.local.remove(STORAGE_KEY);
@@ -50,6 +69,7 @@ function normalizeHistory(value) {
     likedDomains: objectOrEmpty(value.likedDomains),
     passedDomains: objectOrEmpty(value.passedDomains),
     lastPassedAt: objectOrEmpty(value.lastPassedAt),
+    domainMemory: normalizeDomainMemory(value.domainMemory),
   };
 }
 
@@ -67,4 +87,13 @@ function numberOrZero(value) {
 
 function objectOrEmpty(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? { ...value } : {};
+}
+
+function normalizeDomainMemory(value) {
+  const memory = objectOrEmpty(value);
+  return Object.fromEntries(Object.entries(memory).map(([domain, entry]) => [domain, {
+    firstSeenAt: numberOrZero(entry?.firstSeenAt),
+    lastSeenAt: numberOrZero(entry?.lastSeenAt),
+    encounters: numberOrZero(entry?.encounters),
+  }]));
 }

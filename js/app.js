@@ -7,7 +7,7 @@ import { queryCurrentWindowTabs, watchClosedTabs } from "./tabs.js";
 import { createProfiles } from "./profiles.js";
 import { findBestMatch } from "./matching.js";
 import { diagnoseTabHabits } from "./therapist.js";
-import { clearHistory, loadHistory, recordDecision } from "./storage.js";
+import { clearHistory, loadHistory, recordDecision, recordEncounters } from "./storage.js";
 import { createUI } from "./ui.js";
 
 const state = {
@@ -40,9 +40,9 @@ async function initialize() {
       loadHistory(),
     ]);
 
-    state.profiles = createProfiles(tabs);
+    state.profiles = createProfiles(tabs, history);
     state.currentIndex = 0;
-    state.history = history;
+    state.history = await recordEncounters(history, state.profiles);
 
     if (state.profiles.length === 0) {
       ui.showEmpty("No eligible tabs", "Open a normal webpage, then try Tabsolutely again.", false);
