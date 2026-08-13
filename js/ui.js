@@ -27,7 +27,7 @@ export function createUI(handlers) {
     elements.feedSummary.textContent = events.length
       ? `${events.length} local ${events.length === 1 ? "moment" : "moments"} · ${profiles.length} tabs currently in the room`
       : `${profiles.length} tabs are in the room. The matchmaker is watching quietly.`;
-    elements.eventFeed.replaceChildren(...events.map(eventCard));
+    elements.eventFeed.replaceChildren(...events.map((event, index) => eventCard(event, index)));
     elements.feedEmpty.hidden = events.length > 0;
     showView("feed");
   }
@@ -96,9 +96,10 @@ function required(id) {
 
 function bind(element, handler) { element.addEventListener("click", handler); }
 
-function eventCard(event) {
+function eventCard(event, index) {
   const article = document.createElement("article");
   article.className = `event-card event-card--${event.kind}`;
+  article.style.setProperty("--event-index", String(Math.min(index, 8)));
   const meta = document.createElement("div");
   meta.className = "event-meta";
   const tier = document.createElement("span");
