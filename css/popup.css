@@ -297,6 +297,10 @@ button:not(:disabled) {
   border-radius: 999px;
 }
 
+.looking-for { margin: -5px 0 12px; padding: 8px 10px; color: #6d5661; font-size: 10px; line-height: 1.35; background: #fff9ec; border-radius: 11px; }
+.looking-for strong { display: block; margin-bottom: 2px; color: #b2782f; font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
+.looking-for span { display: block; }
+
 .flags-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -441,6 +445,12 @@ button:not(:disabled) {
 .match-view h2 {
   margin-top: 13px;
 }
+
+.couple-dialogue { width: 100%; margin: 0 0 8px; padding: 7px 12px; text-align: left; background: rgb(255 255 255 / 72%); border-radius: 14px; }
+.couple-dialogue p { margin: 0; padding: 6px 0; font-size: 10px; line-height: 1.35; }
+.couple-dialogue p + p { border-top: 1px solid #f1dfe6; }
+.couple-dialogue strong { display: block; color: #ca3265; font-size: 9px; }
+.couple-dialogue span { display: block; margin-top: 2px; color: #644f59; font-family: Georgia, serif; }
 
 .score-ring {
   display: grid;

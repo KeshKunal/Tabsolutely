@@ -45,6 +45,7 @@ export function createUI(handlers) {
     elements.jealousyNote.hidden = !profile.jealousy;
     elements.jealousyNote.textContent = profile.jealousy;
     renderList(elements.traits, profile.traits, "li");
+    elements.lookingFor.textContent = profile.lookingFor;
     renderList(elements.greenFlags, profile.greenFlags, "li");
     renderList(elements.redFlags, profile.redFlags, "li");
     elements.progress.textContent = `${position} of ${total} potential matches`;
@@ -72,6 +73,10 @@ export function createUI(handlers) {
     setImage(elements.matchFirstAvatar, first.favicon, "");
     setImage(elements.matchSecondAvatar, second.favicon, "");
     elements.matchTitle.textContent = `${first.name} + ${second.name}`;
+    elements.dialogueFirstName.textContent = first.name;
+    elements.dialogueFirst.textContent = `“${result.dialogue.first}”`;
+    elements.dialogueSecondName.textContent = second.name;
+    elements.dialogueSecond.textContent = `“${result.dialogue.second}”`;
     elements.matchScore.textContent = `${result.score}%`;
     elements.scoreRing.style.setProperty("--score", `${result.score}%`);
     elements.matchRelationship.textContent = result.label;
@@ -162,7 +167,7 @@ function collectElements() {
     app: required("app"), card: required("profile-card"), progress: required("deck-progress"),
     exAlert: required("ex-alert"), exMessage: required("ex-message"),
     avatar: required("profile-avatar"), category: required("profile-category"), name: required("profile-name"),
-    domain: required("profile-domain"), bio: required("profile-bio"), jealousyNote: required("jealousy-note"), traits: required("profile-traits"),
+    domain: required("profile-domain"), bio: required("profile-bio"), jealousyNote: required("jealousy-note"), traits: required("profile-traits"), lookingFor: required("profile-looking-for"),
     greenFlags: required("green-flags"), redFlags: required("red-flags"), passButton: required("pass-button"),
     likeButton: required("like-button"), statsButton: required("stats-button"), closeStatsButton: required("close-stats-button"),
     therapistButton: required("therapist-button"), closeTherapistButton: required("close-therapist-button"),
@@ -170,6 +175,8 @@ function collectElements() {
     diagnosisSymptoms: required("diagnosis-symptoms"), diagnosisTreatment: required("diagnosis-treatment"),
     matchView: required("match-view"), matchKicker: required("match-kicker"), scoreRing: required("score-ring"),
     matchFirstAvatar: required("match-first-avatar"), matchSecondAvatar: required("match-second-avatar"),
+    dialogueFirstName: required("dialogue-first-name"), dialogueFirst: required("dialogue-first"),
+    dialogueSecondName: required("dialogue-second-name"), dialogueSecond: required("dialogue-second"),
     matchTitle: required("match-title"), matchScore: required("match-score"), matchRelationship: required("match-relationship"),
     matchReasons: required("match-reasons"), continueButton: required("continue-button"), statGrid: required("stat-grid"),
     weddingDetails: required("wedding-details"), weddingVenue: required("wedding-venue"),

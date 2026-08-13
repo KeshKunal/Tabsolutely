@@ -4,6 +4,7 @@
  */
 
 import { extractEvidence } from "./evidence.js";
+import { createGossip } from "./relationships.js";
 
 const PERSONAS = [
   {
@@ -69,7 +70,8 @@ const CATEGORY_DOMAINS = [
 
 export function createProfiles(tabs, history = {}) {
   const evidence = extractEvidence(tabs, history);
-  return evidence.map(createProfileFromEvidence);
+  const profiles = evidence.map(createProfileFromEvidence);
+  return profiles.map((profile) => ({ ...profile, jealousy: createGossip(profile, profiles) }));
 }
 
 export function createProfile(tab, domainCounts = {}) {

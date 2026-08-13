@@ -1,61 +1,52 @@
 /**
- * matching.js calculates deterministic compatibility between two tab profiles.
- * The same pair receives the same score and an understandable list of reasons.
+ * matching.js scores two profiles from their evidence, then asks the relationship
+ * engine for pair-specific chemistry, dialogue, and a relationship label.
  */
 
+import { describeRelationship } from "./relationships.js";
+
 const PAIR_SCORES = {
-  "Development|Productivity": 24,
-  "Entertainment|Productivity": 18,
-  "Entertainment|Social": 28,
-  "Education|Search": 26,
-  "Development|Search": 22,
-  "News|Social": 18,
-  "Shopping|Social": 16,
+  "Development|Productivity": 24, "Entertainment|Productivity": 18,
+  "Entertainment|Social": 28, "Education|Search": 26,
+  "Development|Search": 22, "News|Social": 18, "Shopping|Social": 16,
 };
 
 export function calculateCompatibility(first, second) {
   let score = 42;
   const reasons = [];
-  const pair = [first.category, second.category].sort().join("|");
+  const categoryPair = [first.category, second.category].sort().join("|");
+  const relationship = describeRelationship(first, second);
 
-  if (first.category === second.category) {
-    score += 25;
-    reasons.push(`Both understand the ${first.category.toLowerCase()} lifestyle`);
-  } else if (PAIR_SCORES[pair]) {
-    score += PAIR_SCORES[pair];
-    reasons.push(categoryReason(first.category, second.category));
-  } else {
-    score += 10;
-    reasons.push("Opposites keep the tab bar interesting");
-  }
+  if (first.category === second.category) score += 25;
+  else score += PAIR_SCORES[categoryPair] ?? 10;
+  reasons.push(relationship.reason);
 
   if (first.pinned && second.pinned) {
     score += 10;
-    reasons.push("Both are ready for commitment");
+    reasons.push("Both have already survived the commitment ceremony known as pinning");
   }
   if (first.active || second.active) {
     score += 6;
-    reasons.push("At least one of them gets attention");
+    reasons.push("At least one of them currently receives attention");
   }
   if (first.domain === second.domain) {
     score += 7;
-    reasons.push("Same-domain chemistry is undeniable");
+    reasons.push("Same-domain chemistry—or an unresolved duplication problem");
   }
-  if ((first.category === "Productivity" && second.category === "Entertainment") || (second.category === "Productivity" && first.category === "Entertainment")) {
-    score += 6;
-    reasons.push("One works while the other plans the snack break");
+  if (first.previousPasses > 0 || second.previousPasses > 0) {
+    score -= 5;
+    reasons.push("This relationship already has rejection paperwork");
   }
 
   score += stablePairBonus(first.domain, second.domain);
   score = Math.max(0, Math.min(99, score));
 
-  const marriage = score >= 95 ? createWeddingPlan(first, second) : null;
-
   return {
     score,
-    label: relationshipLabel(score),
+    label: relationship.label || relationshipLabel(score),
     reasons: reasons.slice(0, 3),
-    marriage,
+    dialogue: { first: relationship.firstLine, second: relationship.secondLine },
+    marriage: score >= 95 ? createWeddingPlan(first, second) : null,
   };
 }
 
@@ -74,34 +65,13 @@ export function relationshipLabel(score) {
 }
 
 function stablePairBonus(first, second) {
-  const text = [first, second].sort().join("|");
-  const hash = [...text].reduce((total, character) => (total * 31 + character.charCodeAt(0)) % 11, 0);
-  return hash;
-}
-
-function categoryReason(first, second) {
-  const categories = new Set([first, second]);
-  if (categories.has("Development") && categories.has("Productivity")) return "One builds it; the other keeps the roadmap tidy";
-  if (categories.has("Entertainment") && categories.has("Social")) return "They can procrastinate together professionally";
-  if (categories.has("Education") && categories.has("Search")) return "Curiosity has found its research assistant";
-  if (categories.has("Development") && categories.has("Search")) return "Every error message deserves a second opinion";
-  return "Their browser energy is weirdly complementary";
+  return [...[first, second].sort().join("|")].reduce((total, character) => (total * 31 + character.charCodeAt(0)) % 11, 0);
 }
 
 function createWeddingPlan(first, second) {
   const seed = stablePairBonus(first.domain, second.domain);
   const venues = ["/dev/null", "an incognito window", "the bookmarks bar", "a tastefully pinned tab", "localhost:3000"];
   const dressCodes = ["Business casual", "Dark mode formal", "Cache optional", "Tabs, not spaces", "Come as your favicon"];
-  const vows = [
-    "I promise to stay open through every refresh.",
-    "Till browser crash do us part.",
-    "For richer or poorer, online or cached.",
-    "I choose you in this window and every restored session.",
-  ];
-
-  return {
-    venue: venues[seed % venues.length],
-    dressCode: dressCodes[(seed + 2) % dressCodes.length],
-    vow: vows[(seed + 1) % vows.length],
-  };
+  const vows = ["I promise to stay open through every refresh.", "Till browser crash do us part.", "For richer or poorer, online or cached.", "I choose you in this window and every restored session."];
+  return { venue: venues[seed % venues.length], dressCode: dressCodes[(seed + 2) % dressCodes.length], vow: vows[(seed + 1) % vows.length] };
 }
