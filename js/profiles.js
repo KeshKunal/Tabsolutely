@@ -189,7 +189,7 @@ function domainFrom(value) {
 }
 
 function stableIndex(value, length) {
-  return [...value].reduce((total, character) => (total * 31 + character.charCodeAt(0)) >>> 0, 0) % length;
+  return [...value].reduce((total, character) => ((total * 31 + character.charCodeAt(0)) >>> 0), 0) % length;
 }
 
 function unique(values) {

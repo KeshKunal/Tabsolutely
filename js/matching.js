@@ -70,7 +70,7 @@ export function relationshipTier(score) {
 }
 
 function stablePairBonus(first, second) {
-  return [...[first, second].sort().join("|")].reduce((total, character) => (total * 31 + character.charCodeAt(0)) % 11, 0);
+  return [...[first, second].sort().join("|")].reduce((total, character) => ((total * 31 + character.charCodeAt(0)) % 11), 0);
 }
 
 function createWeddingPlan(first, second) {
