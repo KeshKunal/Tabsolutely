@@ -42,6 +42,8 @@ export function createUI(handlers) {
     elements.name.textContent = profile.name;
     elements.domain.textContent = profile.domain;
     elements.bio.textContent = `“${profile.bio}”`;
+    elements.jealousyNote.hidden = !profile.jealousy;
+    elements.jealousyNote.textContent = profile.jealousy;
     renderList(elements.traits, profile.traits, "li");
     renderList(elements.greenFlags, profile.greenFlags, "li");
     renderList(elements.redFlags, profile.redFlags, "li");
@@ -150,7 +152,7 @@ function collectElements() {
     app: required("app"), card: required("profile-card"), progress: required("deck-progress"),
     exAlert: required("ex-alert"), exMessage: required("ex-message"),
     avatar: required("profile-avatar"), category: required("profile-category"), name: required("profile-name"),
-    domain: required("profile-domain"), bio: required("profile-bio"), traits: required("profile-traits"),
+    domain: required("profile-domain"), bio: required("profile-bio"), jealousyNote: required("jealousy-note"), traits: required("profile-traits"),
     greenFlags: required("green-flags"), redFlags: required("red-flags"), passButton: required("pass-button"),
     likeButton: required("like-button"), statsButton: required("stats-button"), closeStatsButton: required("close-stats-button"),
     therapistButton: required("therapist-button"), closeTherapistButton: required("close-therapist-button"),

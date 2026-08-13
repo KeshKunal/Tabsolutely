@@ -16,9 +16,18 @@ const CATEGORY_RULES = [
 
 const RESTRICTED_SCHEMES = ["chrome:", "edge:", "about:", "devtools:"];
 
+const RIVAL_GROUPS = [
+  ["github.com", "gitlab.com", "bitbucket.org"],
+  ["google.com", "bing.com", "duckduckgo.com", "search.brave.com"],
+  ["youtube.com", "netflix.com", "twitch.tv", "primevideo.com", "hotstar.com"],
+  ["amazon.com", "amazon.in", "flipkart.com", "ebay.com"],
+  ["reddit.com", "x.com", "twitter.com", "instagram.com", "facebook.com"],
+];
+
 export function createProfiles(tabs) {
   const counts = countDomains(tabs);
-  return tabs.map((tab) => createProfile(tab, counts));
+  const profiles = tabs.map((tab) => createProfile(tab, counts));
+  return profiles.map((profile) => ({ ...profile, jealousy: createJealousy(profile, profiles) }));
 }
 
 export function createProfile(tab, domainCounts = {}) {
@@ -44,7 +53,28 @@ export function createProfile(tab, domainCounts = {}) {
     muted: Boolean(tab.mutedInfo?.muted),
     active: Boolean(tab.active),
     duplicateCount,
+    jealousy: "",
   };
+}
+
+function createJealousy(profile, profiles) {
+  const rivalGroup = RIVAL_GROUPS.find((group) => group.includes(profile.domain));
+  if (!rivalGroup) return "";
+
+  const rival = profiles.find((candidate) => candidate.id !== profile.id && candidate.domain !== profile.domain && rivalGroup.includes(candidate.domain));
+  if (!rival) return "";
+
+  const lines = [
+    `${profile.name} noticed ${rival.name}. “Oh, so you have a type?”`,
+    `${profile.name}: “Who is ${rival.name}, and why are they in your tab bar?”`,
+    `${profile.name} would like to know if ${rival.name} is “just a work tab.”`,
+  ];
+  return lines[stableIndex(`${profile.domain}|${rival.domain}`, lines.length)];
+}
+
+function stableIndex(value, length) {
+  const hash = [...value].reduce((total, character) => total + character.charCodeAt(0), 0);
+  return hash % length;
 }
 
 function parseTabUrl(value) {
