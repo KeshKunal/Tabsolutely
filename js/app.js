@@ -6,6 +6,7 @@
 import { queryCurrentWindowTabs } from "./tabs.js";
 import { createProfiles } from "./profiles.js";
 import { findBestMatch } from "./matching.js";
+import { diagnoseTabHabits } from "./therapist.js";
 import { clearHistory, loadHistory, recordDecision } from "./storage.js";
 import { createUI } from "./ui.js";
 
@@ -24,6 +25,8 @@ const ui = createUI({
   onRetry: initialize,
   onOpenStats: openStats,
   onCloseStats: closeStats,
+  onOpenTherapist: openTherapist,
+  onCloseTherapist: closeOverlay,
   onClear: clearSavedHistory,
 });
 
@@ -113,6 +116,15 @@ function openStats() {
 }
 
 function closeStats() {
+  ui.restoreView(state.previousView);
+}
+
+function openTherapist() {
+  state.previousView = ui.currentView();
+  ui.showTherapist(diagnoseTabHabits(state.profiles));
+}
+
+function closeOverlay() {
   ui.restoreView(state.previousView);
 }
 

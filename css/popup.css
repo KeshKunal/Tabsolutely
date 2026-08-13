@@ -44,6 +44,8 @@ button:not(:disabled) { cursor: pointer; }
   color: #7d5b6a; font-size: 22px; background: rgb(255 255 255 / 76%); border: 1px solid #efd9e2; border-radius: 12px;
 }
 .icon-button:hover { color: #d62f68; background: white; }
+.therapist-button { margin-left: auto; }
+.therapist-button + .icon-button { margin-left: 0; }
 
 .view[hidden] { display: none !important; }
 .view--center { display: flex; min-height: 430px; padding: 35px 22px; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
@@ -135,6 +137,20 @@ button:not(:disabled) { cursor: pointer; }
 .privacy-card { padding: 12px; color: #68545d; font-size: 10px; line-height: 1.45; background: #fff9e8; border: 1px solid #f1e4b9; border-radius: 14px; }
 .danger-button { width: 100%; min-height: 42px; color: #ae344d; background: transparent; border: 1px solid #e7bcc5; }
 .danger-button:hover { background: #fff0f2; }
+
+.therapist-view { padding-top: 5px; }
+.therapist-couch {
+  display: grid; width: 64px; height: 64px; margin: 17px auto 11px; place-items: center; color: #fff; font-size: 31px;
+  background: linear-gradient(145deg, #8166d9, #563ab5); border-radius: 22px; box-shadow: 0 12px 25px rgb(80 54 170 / 22%);
+}
+.diagnosis-label { margin: 0; color: #8a7180; font-size: 9px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: .14em; }
+.therapist-view > h3 { margin: 4px 0; color: #5d3f9d; font-family: Georgia, serif; font-size: 21px; text-align: center; }
+.diagnosis-note { margin: 0 auto 12px; max-width: 310px; color: #78616d; font-size: 11px; line-height: 1.4; text-align: center; }
+.symptoms-card { padding: 13px 15px; background: white; border: 1px solid #e8dff3; border-radius: 16px; }
+.symptoms-card h4 { margin: 0 0 7px; color: #6d51a9; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.symptoms-card ul { margin: 0; padding-left: 18px; color: #624f59; font-size: 11px; line-height: 1.55; }
+.therapist-view blockquote { margin: 12px 0 0; padding: 13px; color: #694d59; font-family: Georgia, serif; font-size: 13px; line-height: 1.45; background: #fff8df; border-left: 4px solid #e4bd43; border-radius: 4px 14px 14px 4px; }
+.therapist-disclaimer { margin: 9px 0 0; color: #9b8490; font-size: 9px; text-align: center; }
 
 :focus-visible { outline: 3px solid #6d32d8; outline-offset: 3px; }
 

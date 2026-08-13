@@ -18,6 +18,8 @@ export function createUI(handlers) {
   bind(elements.retryButton, handlers.onRetry);
   bind(elements.statsButton, handlers.onOpenStats);
   bind(elements.closeStatsButton, handlers.onCloseStats);
+  bind(elements.therapistButton, handlers.onOpenTherapist);
+  bind(elements.closeTherapistButton, handlers.onCloseTherapist);
   bind(elements.clearButton, handlers.onClear);
 
   function showView(name) {
@@ -105,8 +107,17 @@ export function createUI(handlers) {
     elements.retryButton.focus({ preventScroll: true });
   }
 
+  function showTherapist(diagnosis) {
+    elements.diagnosisTitle.textContent = diagnosis.title;
+    elements.diagnosisNote.textContent = diagnosis.note;
+    renderList(elements.diagnosisSymptoms, diagnosis.symptoms, "li");
+    elements.diagnosisTreatment.textContent = diagnosis.treatment;
+    showView("therapist");
+    elements.closeTherapistButton.focus({ preventScroll: true });
+  }
+
   function restoreView(name) {
-    const allowed = new Set(["loading", "deck", "match", "empty", "error"]);
+    const allowed = new Set(["loading", "deck", "match", "empty", "error", "stats", "therapist"]);
     showView(allowed.has(name) ? name : "deck");
   }
 
@@ -118,6 +129,7 @@ export function createUI(handlers) {
     showStats,
     showEmpty,
     showError,
+    showTherapist,
     restoreView,
     currentView: () => activeView,
     isAnimating: () => animating,
@@ -132,6 +144,9 @@ function collectElements() {
     domain: required("profile-domain"), bio: required("profile-bio"), traits: required("profile-traits"),
     greenFlags: required("green-flags"), redFlags: required("red-flags"), passButton: required("pass-button"),
     likeButton: required("like-button"), statsButton: required("stats-button"), closeStatsButton: required("close-stats-button"),
+    therapistButton: required("therapist-button"), closeTherapistButton: required("close-therapist-button"),
+    diagnosisTitle: required("diagnosis-title"), diagnosisNote: required("diagnosis-note"),
+    diagnosisSymptoms: required("diagnosis-symptoms"), diagnosisTreatment: required("diagnosis-treatment"),
     matchFirstAvatar: required("match-first-avatar"), matchSecondAvatar: required("match-second-avatar"),
     matchTitle: required("match-title"), matchScore: required("match-score"), matchRelationship: required("match-relationship"),
     matchReasons: required("match-reasons"), continueButton: required("continue-button"), statGrid: required("stat-grid"),
