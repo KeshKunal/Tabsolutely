@@ -120,6 +120,16 @@ button:not(:disabled) { cursor: pointer; }
 .reasons li + li { margin-top: 5px; }
 .primary-button { width: 100%; padding: 0 20px; color: white; background: linear-gradient(135deg, #ff5e93, #de2865); box-shadow: 0 10px 22px rgb(222 40 101 / 20%); }
 
+.dead-view { padding-top: 18px; justify-content: flex-start; }
+.dead-kicker { margin: 8px 0 14px !important; color: #a24a61 !important; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; }
+.broken-heart { display: grid; width: 82px; height: 82px; place-items: center; color: #8c6d7a; font-size: 48px; background: #f4ebef; border-radius: 50%; filter: grayscale(1); }
+.dead-view h2 { margin-top: 15px; }
+.last-seen { width: 100%; margin: 17px 0; padding: 4px 14px; background: rgb(255 255 255 / 82%); border: 1px solid #eadce2; border-radius: 16px; }
+.last-seen div { display: flex; padding: 10px 0; justify-content: space-between; gap: 14px; font-size: 11px; }
+.last-seen div + div { border-top: 1px solid #eee2e7; }
+.last-seen dt { color: #8e7480; }
+.last-seen dd { margin: 0; font-weight: 750; text-align: right; }
+
 .stats-view { padding-top: 5px; }
 .view-heading { display: flex; align-items: flex-start; }
 .view-heading .eyebrow { margin: 0 0 3px; }

@@ -76,6 +76,19 @@
         <button class="primary-button" id="continue-button" type="button">Keep swiping</button>
       </section>
 
+      <section class="view view--center dead-view" id="dead-view" hidden aria-live="assertive">
+        <p class="dead-kicker">A profile left the browser</p>
+        <div class="broken-heart" aria-hidden="true">♡</div>
+        <h2 id="dead-title"></h2>
+        <p id="dead-message"></p>
+        <dl class="last-seen">
+          <div><dt>Last seen</dt><dd>Just now</dd></div>
+          <div><dt>Cause</dt><dd>User closed the tab</dd></div>
+          <div><dt>Status</dt><dd>Gone but not forgotten</dd></div>
+        </dl>
+        <button class="primary-button" id="dead-continue-button" type="button">Respectfully move on</button>
+      </section>
+
       <section class="view stats-view" id="stats-view" hidden>
         <div class="view-heading">
           <div><p class="eyebrow">Your dating life</p><h2>Local statistics</h2></div>

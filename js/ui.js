@@ -14,6 +14,7 @@ export function createUI(handlers) {
   bind(elements.passButton, handlers.onPass);
   bind(elements.likeButton, handlers.onLike);
   bind(elements.continueButton, handlers.onContinue);
+  bind(elements.deadContinueButton, handlers.onDeadContinue);
   bind(elements.restartButton, handlers.onRestart);
   bind(elements.retryButton, handlers.onRetry);
   bind(elements.statsButton, handlers.onOpenStats);
@@ -75,6 +76,13 @@ export function createUI(handlers) {
     elements.continueButton.focus({ preventScroll: true });
   }
 
+  function showDeadTab(profile) {
+    elements.deadTitle.textContent = `${profile.name} is no longer available.`;
+    elements.deadMessage.textContent = `The ${profile.category.toLowerCase()} heart wants what the close button took away.`;
+    showView("dead");
+    elements.deadContinueButton.focus({ preventScroll: true });
+  }
+
   function showStats(history) {
     const safe = history ?? { viewed: 0, likes: 0, passes: 0, matches: 0, likedDomains: {}, passedDomains: {} };
     const stats = [
@@ -117,7 +125,7 @@ export function createUI(handlers) {
   }
 
   function restoreView(name) {
-    const allowed = new Set(["loading", "deck", "match", "empty", "error", "stats", "therapist"]);
+    const allowed = new Set(["loading", "deck", "match", "dead", "empty", "error", "stats", "therapist"]);
     showView(allowed.has(name) ? name : "deck");
   }
 
@@ -126,6 +134,7 @@ export function createUI(handlers) {
     showProfile,
     animateDecision,
     showMatch,
+    showDeadTab,
     showStats,
     showEmpty,
     showError,
@@ -150,6 +159,7 @@ function collectElements() {
     matchFirstAvatar: required("match-first-avatar"), matchSecondAvatar: required("match-second-avatar"),
     matchTitle: required("match-title"), matchScore: required("match-score"), matchRelationship: required("match-relationship"),
     matchReasons: required("match-reasons"), continueButton: required("continue-button"), statGrid: required("stat-grid"),
+    deadTitle: required("dead-title"), deadMessage: required("dead-message"), deadContinueButton: required("dead-continue-button"),
     domainStats: required("domain-stats"), clearButton: required("clear-button"), emptyTitle: required("empty-title"),
     emptyMessage: required("empty-message"), restartButton: required("restart-button"), errorMessage: required("error-message"),
     retryButton: required("retry-button"),

@@ -3,7 +3,7 @@
  * to user choices, and asks focused modules to handle UI, matching, and storage.
  */
 
-import { queryCurrentWindowTabs } from "./tabs.js";
+import { queryCurrentWindowTabs, watchClosedTabs } from "./tabs.js";
 import { createProfiles } from "./profiles.js";
 import { findBestMatch } from "./matching.js";
 import { diagnoseTabHabits } from "./therapist.js";
@@ -21,6 +21,7 @@ const ui = createUI({
   onPass: () => choose("pass"),
   onLike: () => choose("like"),
   onContinue: showNextProfile,
+  onDeadContinue: showNextProfile,
   onRestart: restartDeck,
   onRetry: initialize,
   onOpenStats: openStats,
@@ -136,10 +137,20 @@ async function clearSavedHistory() {
   ui.showStats(state.history);
 }
 
+function handleClosedTab(tabId) {
+  const removedIndex = state.profiles.findIndex((profile) => profile.id === tabId);
+  if (removedIndex < 0) return;
+
+  const [departedProfile] = state.profiles.splice(removedIndex, 1);
+  if (removedIndex < state.currentIndex) state.currentIndex -= 1;
+  ui.showDeadTab(departedProfile);
+}
+
 document.addEventListener("keydown", (event) => {
   if (ui.currentView() !== "deck" || event.altKey || event.ctrlKey || event.metaKey) return;
   if (event.key === "ArrowLeft") choose("pass");
   if (event.key === "ArrowRight") choose("like");
 });
 
+watchClosedTabs(handleClosedTab);
 initialize();
