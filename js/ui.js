@@ -95,7 +95,8 @@ export function createUI(handlers) {
 
   function showDeadTab(profile) {
     elements.deadTitle.textContent = `${profile.name} is no longer available.`;
-    elements.deadMessage.textContent = `The ${profile.category.toLowerCase()} heart wants what the close button took away.`;
+    elements.deadMessage.textContent = `Last words: “${profile.lastWords}”`;
+    elements.deadCause.textContent = profile.causeOfDeath;
     showView("dead");
     elements.deadContinueButton.focus({ preventScroll: true });
   }
@@ -137,6 +138,8 @@ export function createUI(handlers) {
     elements.diagnosisNote.textContent = diagnosis.note;
     renderList(elements.diagnosisSymptoms, diagnosis.symptoms, "li");
     elements.diagnosisTreatment.textContent = diagnosis.treatment;
+    elements.browserPrediction.textContent = diagnosis.prediction;
+    renderMeters(elements.browserMeters, diagnosis.metrics);
     showView("therapist");
     elements.closeTherapistButton.focus({ preventScroll: true });
   }
@@ -173,6 +176,7 @@ function collectElements() {
     therapistButton: required("therapist-button"), closeTherapistButton: required("close-therapist-button"),
     diagnosisTitle: required("diagnosis-title"), diagnosisNote: required("diagnosis-note"),
     diagnosisSymptoms: required("diagnosis-symptoms"), diagnosisTreatment: required("diagnosis-treatment"),
+    browserMeters: required("browser-meters"), browserPrediction: required("browser-prediction"),
     matchView: required("match-view"), matchKicker: required("match-kicker"), scoreRing: required("score-ring"),
     matchFirstAvatar: required("match-first-avatar"), matchSecondAvatar: required("match-second-avatar"),
     dialogueFirstName: required("dialogue-first-name"), dialogueFirst: required("dialogue-first"),
@@ -181,7 +185,7 @@ function collectElements() {
     matchReasons: required("match-reasons"), continueButton: required("continue-button"), statGrid: required("stat-grid"),
     weddingDetails: required("wedding-details"), weddingVenue: required("wedding-venue"),
     weddingDress: required("wedding-dress"), weddingVow: required("wedding-vow"),
-    deadTitle: required("dead-title"), deadMessage: required("dead-message"), deadContinueButton: required("dead-continue-button"),
+    deadTitle: required("dead-title"), deadMessage: required("dead-message"), deadCause: required("dead-cause"), deadContinueButton: required("dead-continue-button"),
     domainStats: required("domain-stats"), clearButton: required("clear-button"), emptyTitle: required("empty-title"),
     emptyMessage: required("empty-message"), restartButton: required("restart-button"), errorMessage: required("error-message"),
     retryButton: required("retry-button"),
@@ -220,6 +224,20 @@ function statCard(value, label) {
   span.textContent = label;
   card.append(strong, span);
   return card;
+}
+
+function renderMeters(container, metrics) {
+  container.replaceChildren(...metrics.map((metric) => {
+    const row = document.createElement("div");
+    const label = document.createElement("span");
+    const value = document.createElement("strong");
+    const track = document.createElement("i");
+    label.textContent = metric.label;
+    value.textContent = `${metric.value}%`;
+    track.style.setProperty("--meter", `${metric.value}%`);
+    row.append(label, value, track);
+    return row;
+  }));
 }
 
 function detailRow(label, value) {

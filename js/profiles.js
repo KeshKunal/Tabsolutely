@@ -96,6 +96,8 @@ function createProfileFromEvidence(evidence) {
     greenFlags: contextualGreenFlags(evidence, source.green, category),
     redFlags: contextualRedFlags(evidence, source.red, category),
     lookingFor: source.lookingFor,
+    lastWords: lastWordsFor(persona?.key),
+    causeOfDeath: causeFor(persona?.key),
     jealousy: "",
     personaKey: persona?.key ?? "generic",
   };
@@ -176,6 +178,7 @@ function mysteriousProfile(evidence) {
     greenFlags: ["Respects browser-enforced boundaries", "Keeps secrets from extensions"],
     redFlags: ["Won’t reveal a URL", "Emotionally and technically inaccessible"],
     lookingFor: "Someone comfortable with unavailable information.", jealousy: "", personaKey: "restricted",
+    lastWords: "You never really knew me.", causeOfDeath: "Classified by the browser",
   };
 }
 
@@ -194,4 +197,22 @@ function stableIndex(value, length) {
 
 function unique(values) {
   return [...new Set(values.filter(Boolean))];
+}
+
+function lastWordsFor(key) {
+  const lines = {
+    github: "git push --force…", youtube: "But we were watching something…",
+    stackoverflow: "Try the accepted answer one more time…", hackclub: "Ship it without me.",
+    docs: "At least save the draft…", chatgpt: "As an AI language model—",
+  };
+  return lines[key] ?? "Tell my favicon I loved them.";
+}
+
+function causeFor(key) {
+  const causes = {
+    github: "A suspiciously forceful close", youtube: "The user finally showed restraint",
+    stackoverflow: "The accepted answer didn’t work", hackclub: "Project successfully shipped (probably)",
+    docs: "Deadline-related abandonment", chatgpt: "Context window exhaustion",
+  };
+  return causes[key] ?? "User closed the tab";
 }

@@ -769,6 +769,14 @@ button:not(:disabled) {
   text-align: center;
 }
 
+.browser-meters { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 10px 0; }
+.browser-meters div { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 8px 9px; background: white; border: 1px solid #e9dff1; border-radius: 11px; }
+.browser-meters span { color: #755f6a; font-size: 9px; }
+.browser-meters strong { color: #6543ad; font-size: 10px; }
+.browser-meters i { grid-column: 1 / -1; height: 4px; overflow: hidden; background: #eee7f5; border-radius: 999px; }
+.browser-meters i::after { display: block; width: var(--meter); height: 100%; content: ""; background: linear-gradient(90deg, #7d5bd0, #ef4e88); border-radius: inherit; }
+.browser-prediction { margin: 0 0 10px; color: #a13a63; font-size: 10px; font-weight: 750; text-align: center; }
+
 .symptoms-card {
   padding: 13px 15px;
   background: white;
