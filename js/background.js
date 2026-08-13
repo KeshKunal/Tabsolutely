@@ -25,6 +25,11 @@ chrome.tabs.onRemoved.addListener((tabId) => forgetTab(tabId));
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.action.setBadgeBackgroundColor({ color: "#d92f68" });
+  enqueueInitialScene();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  enqueueInitialScene();
 });
 
 chrome.notifications.onClicked.addListener(async (notificationId) => {
@@ -36,6 +41,31 @@ function enqueueTab(tab) {
   matchmakingQueue = matchmakingQueue
     .then(() => processCandidate(tab))
     .catch((error) => console.warn("Tabsolutely matchmaker skipped an event:", error));
+}
+
+/** Give an existing browser one quiet opening scene after install/startup. */
+function enqueueInitialScene() {
+  matchmakingQueue = matchmakingQueue
+    .then(createInitialScene)
+    .catch((error) => console.warn("Tabsolutely could not create an opening scene:", error));
+}
+
+async function createInitialScene() {
+  let history = await loadHistory();
+  if (history.relationshipEvents.length > 0) return;
+
+  const tabs = (await chrome.tabs.query({})).filter((tab) => isMatchableUrl(tab.url));
+  if (tabs.length < 2) return;
+
+  const newcomer = tabs.find((tab) => tab.active) ?? tabs.at(-1);
+  const profiles = createProfiles(tabs, history);
+  const newcomerProfile = profiles.find((profile) => profile.id === newcomer.id);
+  const match = newcomerProfile ? findBestMatch(newcomerProfile, profiles.filter((profile) => profile.id !== newcomer.id)) : null;
+  if (!match) return;
+
+  history = await recordRelationshipEvent(history, createRelationshipEvent(newcomerProfile, match.profile, match.result));
+  history = await recordEncounters(history, profiles);
+  await updateBadge(history.unreadEvents);
 }
 
 async function processCandidate(tab) {
