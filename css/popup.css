@@ -131,10 +131,10 @@ button:not(:disabled) { cursor: pointer; }
 .live-badge i { width: 6px; height: 6px; background: #35aa68; border-radius: 50%; box-shadow: 0 0 0 3px rgb(53 170 104 / 15%); }
 .feed-summary { margin: 13px 0 15px; color: #896b73; font-size: 10px; font-weight: 500; line-height: 1.45; }
 
-.event-feed { display: grid; max-height: 404px; padding: 1px 3px 6px 0; overflow-y: auto; gap: 12px; scrollbar-color: #ef9cb1 transparent; scrollbar-width: thin; }
+.event-feed { display: grid; max-height: 404px; padding: 1px 3px 6px 0; overflow-y: auto; gap: 8px; scrollbar-color: #ef9cb1 transparent; scrollbar-width: thin; }
 .event-card {
   position: relative;
-  padding: 15px 15px 14px 18px;
+  padding: 11px 13px 10px 13px;
   overflow: hidden;
   background: rgb(255 253 249 / 89%);
   border: 1px solid #e7d7d0;
@@ -144,14 +144,12 @@ button:not(:disabled) { cursor: pointer; }
   animation-delay: calc(var(--event-index, 0) * 55ms);
 }
 .event-card::after { position: absolute; top: -17px; right: -14px; width: 70px; height: 70px; content: ""; background: rgb(243 62 112 / 7%); border-radius: 50%; }
-.event-meta { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px; color: #d83564; font-size: 8px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.event-meta { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 6px; color: #d83564; font-size: 8px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
 .event-meta time { color: #987982; font-weight: 700; letter-spacing: 0; text-transform: none; }
-.event-card h3 { position: relative; z-index: 1; margin: 7px 0 3px; font-family: "DM Serif Display", Georgia, serif; font-size: 24px; font-weight: 400; line-height: 1; letter-spacing: -.035em; }
+.event-card h3 { position: relative; z-index: 1; margin: 3px 0 1px; font-family: "DM Serif Display", Georgia, serif; font-size: 18px; font-weight: 400; line-height: 1.1; letter-spacing: -.035em; }
 .event-score { position: relative; z-index: 1; color: #a34c65; font-size: 9px; font-weight: 800; }
-.event-reason { position: relative; z-index: 1; margin: 9px 0; color: #634650; font-family: "DM Serif Display", Georgia, serif; font-size: 15px; line-height: 1.18; }
-.event-dialogue { position: relative; z-index: 1; padding: 7px 9px; background: #f8ede9; border-radius: 9px; }
-.event-dialogue p { display: grid; grid-template-columns: auto 1fr; gap: 6px; margin: 3px 0; color: #725761; font-size: 9px; line-height: 1.36; }
-.event-dialogue b { color: #bc345d; font-size: 8px; letter-spacing: .02em; }
+.event-reason { display: none; }
+.event-dialogue { display: none; }
 
 .feed-empty { padding: 43px 22px 38px; text-align: center; background: rgb(255 253 249 / 56%); border: 1px dashed #d8bfc3; border-radius: 23px; }
 .feed-empty h3 { margin: 9px 0 7px; font-family: "DM Serif Display", Georgia, serif; font-size: 23px; font-weight: 400; line-height: 1.05; }
@@ -191,7 +189,7 @@ button:not(:disabled) { cursor: pointer; }
 .symptoms-card { padding: 13px; background: #fffdf9; border: 1px solid #e3d9ee; border-radius: 4px 15px 15px 15px; }
 .symptoms-card h4 { margin: 0 0 7px; color: #6547a2; font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
 .symptoms-card ul { margin: 0; padding-left: 17px; color: #64515a; font-size: 10px; line-height: 1.55; }
-.therapist-view blockquote { margin: 12px 0 0; padding: 13px; color: #614b55; font-family: "DM Serif Display", Georgia, serif; font-size: 15px; line-height: 1.25; background: #fff0d6; border-left: 4px solid #e9ad45; border-radius: 3px 12px 12px 3px; }
+.therapist-view blockquote { margin: 12px 0 0; padding: 13px; color: #452d36; font-family: "Manrope", system-ui, sans-serif; font-size: 13px; font-weight: 600; line-height: 1.5; background: #fff9e6; border-left: 4px solid #e9ad45; border-radius: 3px 8px 8px 3px; }
 .therapist-disclaimer { margin: 9px 0 0; color: #9b8690; font-size: 8px; text-align: center; }
 .error-symbol { display: grid; width: 58px; height: 58px; place-items: center; color: #fff; font-family: "DM Serif Display", Georgia, serif; font-size: 34px; background: #f33e70; border-radius: 18px; box-shadow: 5px 5px 0 #ffd1dd; }
 

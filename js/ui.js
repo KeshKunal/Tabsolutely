@@ -25,8 +25,8 @@ export function createUI(handlers) {
 
   function showFeed(events, profiles) {
     elements.feedSummary.textContent = events.length
-      ? `${events.length} local ${events.length === 1 ? "moment" : "moments"} · ${profiles.length} tabs currently in the room`
-      : `${profiles.length} tabs are in the room. The matchmaker is watching quietly.`;
+      ? `${events.length} · ${profiles.length} tabs in room`
+      : `${profiles.length} tabs. Quietly observing.`;
     elements.eventFeed.replaceChildren(...events.map((event, index) => eventCard(event, index)));
     elements.feedEmpty.hidden = events.length > 0;
     showView("feed");
@@ -112,14 +112,8 @@ function eventCard(event, index) {
   couple.textContent = `${event.first.name} + ${event.second.name}`;
   const score = document.createElement("strong");
   score.className = "event-score";
-  score.textContent = `${event.score}% · ${event.label}`;
-  const reason = document.createElement("p");
-  reason.className = "event-reason";
-  reason.textContent = `“${event.reason}”`;
-  const dialogue = document.createElement("div");
-  dialogue.className = "event-dialogue";
-  dialogue.append(dialogueLine(event.first.name, event.dialogue.first), dialogueLine(event.second.name, event.dialogue.second));
-  article.append(meta, couple, score, reason, dialogue);
+  score.textContent = `${event.score}%`;
+  article.append(meta, couple, score);
   return article;
 }
 

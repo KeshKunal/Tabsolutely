@@ -10,21 +10,19 @@ export function diagnoseTabHabits(profiles) {
   const total = profiles.length;
   const productive = profiles.filter((profile) => PRODUCTIVE.has(profile.category)).length;
   const distracting = profiles.filter((profile) => DISTRACTING.has(profile.category)).length;
-  const muted = profiles.filter((profile) => profile.muted).length;
-  const pinned = profiles.filter((profile) => profile.pinned).length;
-  const finalDrafts = profiles.filter((profile) => /\bfinal(?:[-_ ]?v?\d+)?\b/i.test(profile.title)).length;
   const domainCounts = countBy(profiles, (profile) => profile.domain);
   const duplicateGroups = Object.values(domainCounts).filter((count) => count > 1).length;
   const worstRepeat = Math.max(0, ...Object.values(domainCounts));
   const dominantDomain = Object.entries(domainCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? "none";
+  const pinned = profiles.filter((profile) => profile.pinned).length;
   const diagnosis = chooseDiagnosis({ total, distracting, duplicateGroups, worstRepeat });
-  const symptoms = [`${total} tabs currently in the dating pool`];
-
-  if (worstRepeat > 1) symptoms.push(`${worstRepeat} simultaneous relationships with ${dominantDomain}`);
-  if (distracting) symptoms.push(`${distracting} highly qualified distractions`);
-  if (muted) symptoms.push(`${muted} relationship${muted === 1 ? "" : "s"} receiving the silent treatment`);
-  if (pinned) symptoms.push(`${pinned} serious long-term commitment${pinned === 1 ? "" : "s"}`);
-  if (finalDrafts) symptoms.push(`${finalDrafts} “final” draft${finalDrafts === 1 ? "" : "s"}, allegedly`);
+  const symptoms = [];
+  
+  if (total > 10) symptoms.push(`${total} tabs open — browser may slow down`);
+  if (worstRepeat > 1) symptoms.push(`${worstRepeat} duplicate tabs from ${dominantDomain}`);
+  if (distracting) symptoms.push(`${distracting} entertainment/social tabs`);
+  if (duplicateGroups >= 2) symptoms.push(`Multiple domains in duplicates (${duplicateGroups} groups)`);
+  if (pinned) symptoms.push(`${pinned} pinned tab${pinned === 1 ? "" : "s"} (long-term projects)`);
 
   const productivity = percentage(productive, total);
   const procrastination = clamp(percentage(distracting, total) + Math.min(35, worstRepeat * 5));
@@ -37,29 +35,29 @@ export function diagnoseTabHabits(profiles) {
     symptoms: symptoms.slice(0, 5),
     treatment: prescribe({ total, distracting, duplicateGroups }),
     metrics: [
-      { label: "Productivity", value: productivity },
-      { label: "Procrastination", value: procrastination },
-      { label: "Tab hoarding", value: hoarding },
-      { label: `${shortDomain(dominantDomain)} dependency`, value: dependency },
+      { label: "Work tabs", value: productivity },
+      { label: "Distraction level", value: procrastination },
+      { label: "Open tab count", value: hoarding },
+      { label: `${shortDomain(dominantDomain)} usage`, value: dependency },
     ],
-    prediction: `Probability you’ll close these tabs: ${closureChance}%`,
+    prediction: `Estimated closure likelihood: ${closureChance}%`,
   };
 }
 
 function chooseDiagnosis({ total, distracting, duplicateGroups, worstRepeat }) {
-  if (total >= 30) return { title: "Severe Tab Hoarding", note: "Your RAM has requested a private session." };
-  if (worstRepeat >= 5) return { title: "Domain Attachment Disorder", note: "Opening it again is not the same as making progress." };
-  if (distracting >= Math.max(4, total / 2)) return { title: "Chronic Productive Procrastination", note: "The vibes are excellent. The task remains untouched." };
-  if (duplicateGroups >= 2) return { title: "Commitment Multiplicity", note: "You keep your options—and identical tabs—open." };
-  if (total <= 3) return { title: "Suspiciously Healthy Boundaries", note: "We have very little to discuss. Disturbing." };
-  return { title: "Mild Tab Emotional Baggage", note: "Common, treatable, and honestly kind of charming." };
+  if (total >= 30) return { title: "Too Many Tabs Open", note: "Over 30 tabs impact browser performance and your focus. Consider organizing by project." };
+  if (worstRepeat >= 5) return { title: "Duplicate Tabs Detected", note: `You have ${worstRepeat} instances of the same domain open. Close extras to stay focused.` };
+  if (distracting >= Math.max(4, total / 2)) return { title: "High Distraction Level", note: `${distracting} entertainment/social tabs are open. Set these aside when focused on work.` };
+  if (duplicateGroups >= 2) return { title: "Multiple Domain Duplicates", note: "You're managing several domains across multiple tabs. Consolidate to reduce cognitive load." };
+  if (total <= 3) return { title: "Clean Tab Practice", note: "You're keeping tabs minimal. This setup allows better focus and faster browsing." };
+  return { title: "Moderate Tab Count", note: "Your tab count is reasonable. Keep monitoring to avoid accumulation." };
 }
 
 function prescribe({ total, distracting, duplicateGroups }) {
-  if (total >= 30) return "Recommended treatment: close three tabs, drink water, then close three more.";
-  if (distracting >= 4) return "Recommended treatment: finish one task before the algorithm chooses your evening.";
-  if (duplicateGroups) return "Recommended treatment: introduce your duplicate tabs to each other and choose one.";
-  return "Recommended treatment: continue responsibly and schedule a follow-up after your next rabbit hole.";
+  if (total >= 30) return "Action: Close tabs you haven't viewed in the last hour. Keep only current tasks open.";
+  if (distracting >= 4) return "Action: Move entertainment tabs to a separate window. Return to them after completing your main task.";
+  if (duplicateGroups) return "Action: Close duplicate tabs for the same domain. Keep only the one you're actively using.";
+  return "Action: Maintain current setup. Close tabs after completing their task to prevent accumulation.";
 }
 
 function percentage(part, total) { return total ? Math.round((part / total) * 100) : 0; }
